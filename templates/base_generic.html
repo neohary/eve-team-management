@@ -135,6 +135,10 @@
 						<img src="{% static 'img/WindowIcons/market.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
 						军团市场
 					</a>
+					<a href="{% url 'corp-mem-list' pk=user.profile.pcharacter.corp.id %}" class="btn btn-dark text-left" role="button">
+						<img src="{% static 'img/WindowIcons/grouplist.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
+						成员列表
+					</a>
 				{% endif %}
 				{% if user|has_group:"后勤官" %} 
 					<a href="{% url 'InvStorage-list' user.profile.pcharacter.corp.pk %}" class="btn btn-dark text-left" role="button">
@@ -159,15 +163,6 @@
 					</a>
 				{% endif %}
 				{% if user|has_group:"人事" %} 
-					
-					<a href="{% url 'verification-list' user.profile.pcharacter.corp.pk %}" class="btn btn-dark text-left" role="button">
-						<img src="{% static 'img/WindowIcons/recruitment.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
-						新成员申请
-						{% if corp_verification_count > 0 %}
-						<small id="newmemrequest" class="badge badge-primary float-right">{{corp_verification_count}}</small>
-						{% endif %}
-					</a>
-						
 				{% endif %}
 				
 					<a href="{% url 'corp-mem-list' pk=user.profile.pcharacter.corp.id %}" class="btn btn-dark text-left" role="button">
