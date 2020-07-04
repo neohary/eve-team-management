@@ -1,0 +1,55 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<ul class="messages">
+{% for message in messages %}
+	{% if message.tags == 'success' %}
+    <div class="alert alert-success alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>成功</strong> {{message}}
+	</div>
+	{% elif message.tags == 'error' %}
+    <div class="alert alert-danger alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>错误</strong> {{message}}
+	</div>
+	{% else %}
+	<div class="alert alert-warning alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>其他</strong> {{message}}
+	</div>
+	{% endif %}
+{% endfor %}
+</ul>
+{% load static %}
+
+<div>
+	<h1 class="d-flex justify-content-between">
+		<div>
+			<img src="{% static 'img/WindowIcons/Settings.png' %}" alt="" width="64" height="64">
+			军团设置
+		</div>
+		<div>
+			<img class="rounded-circle" src="https://image.evepc.163.com/Corporation/{{user.profile.pcharacter.corp.ingame_id}}_64.png" alt="" width="64" height="64">
+			{{user.profile.pcharacter.corp}}
+		</div>
+	</h1>
+</div>
+
+<div>
+	<form action="" method="post">
+		{% csrf_token %}
+		<label for="{{ form.dftdiscount.id_for_label }}">默认订单折扣：</label>
+		<div class="input-group mb-3">
+		<div class="input-group-prepend">
+			<span class="input-group-text">订单价格 × %</span>
+		</div>
+		{{form.dftdiscount}}
+		</div>
+		<label for="{{ form.dftdiscount.id_for_label }}">这个值影响订单处理时折扣的默认数值，后勤官依然可以对每个订单设定不同的折扣。</label>
+		<button class="btn btn-outline-success" type="submit" style="width:100%;">保存修改</button>
+		<button onclick="goBack()" class="btn btn-outline-primary" type="button" style="width:100%;margin-top:5px;">返回</button>
+	</form>
+</div>
+
+{% endblock %}

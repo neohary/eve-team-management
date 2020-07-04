@@ -1,0 +1,369 @@
+{% extends "base_generic.html" %}
+{% block content %}
+
+<ul class="messages">
+{% for message in messages %}
+	{% if message.tags == 'success' %}
+    <div class="alert alert-success alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>成功</strong> {{message}}
+	</div>
+	{% elif message.tags == 'error' %}
+    <div class="alert alert-danger alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>错误</strong> {{message}}
+	</div>
+	{% else %}
+	<div class="alert alert-warning alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>其他</strong> {{message}}
+	</div>
+	{% endif %}
+{% endfor %}
+</ul>
+
+{% load static %}
+<h1>
+	<img src="{% static 'img/WindowIcons/personalDeliveries.png' %}" alt="" width="64" height="64">
+	<img class="rounded" src="https://image.evepc.163.com/Character/{{order.receiver.ingame_id}}_128.jpg" alt="" width="64" height="64">
+	{{order.receiver}} 的订单
+</h1>
+<p>订单号：<strong>{{order.uid}}</strong> 状态：<strong>{{order.get_status_display}}</strong> 提交日期：<strong>{{order.createdate}}</strong> 
+{% if order.finishdate %} 完成日期：<strong>{{order.finishdate}}</strong> {% endif %}</p>
+<script>
+var totalprice = 0;
+var checklist = 0;
+var discount = 100;
+</script>
+
+<form id="form{{order.uid}}" onsubmit="return validateForm();" action="{% url 'complete-order' order.uid %}" method="POST">
+	{% csrf_token %}
+<table class="table table-dark table-striped">
+{% for item,stock in data %}
+{% if forloop.first %}
+	<tr>
+		<thead>
+		<th scope="col">物品</th>
+		<th>单价</th>
+		<th>数量</th>
+		<th>总价</th>
+		<th>库存</th>
+		<th>状态</th>
+		<th>操作</th>
+		</thead>
+	</tr>
+{% endif %}
+	<tr>
+		<thead>
+		<td>
+			<img src="https://image.evepc.163.com/Type/{{item.item.typeid}}_64.png" alt="" width="32" height="32" style="margin-right:10px;">
+			{{item.item.typename}}
+		</td> <!-- 物品名 -->
+		
+		<td> <!-- 单价 start -->
+			<div id="ipinput{{item.uid}}" style="display:none">
+			<form>
+			</form>
+			<form id="form{{item.uid}}" action="{% url 'update-orderunit' item.uid %}" method="POST" class="input-group">
+					{% csrf_token %}
+				<input type="number" id="eip{{item.uid}}" value="{{item.price}}" name="price" style="width:140px" min="1"/>
+				<div class="input-group-append">
+					<button class="btn btn-success" type="submit"><i class="fa fa-check" aria-hidden="true"></i></button>
+					<button id="cancel" class="btn btn-danger" type="button"><i class="fa fa-times" aria-hidden="true"></i></button>
+				</div>
+			</form>
+			</div>
+			
+			<div id="iplabel{{item.uid}}" style="display:block">
+				<label id="ip{{item.uid}}"></label> <button id="edit" type="button" class="btn btn-outline-warning"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+			</div>
+			
+		</td> <!-- 单价 end -->
+		
+		<td> <!-- 数量 start -->
+			<div id="iqinput{{item.uid}}"  style="display:none">
+			<form id="form{{item.uid}}" action="{% url 'update-orderunit' item.uid %}" method="POST" class="input-group" style="max-width:200px;">
+					{% csrf_token %}
+					<input type="number" id="eiq{{item.uid}}" value="{{item.quantity}}" name="quantity" class="form-control" min="1" />
+				<div class="input-group-append">
+					<button class="btn btn-success" type="submit"><i class="fa fa-check" aria-hidden="true"></i></button>
+					<button id="cancel" class="btn btn-danger" type="button"><i class="fa fa-times" aria-hidden="true"></i></button>
+				</div>
+			</form>
+				
+			</div>
+				
+			<div id="iqlabel{{item.uid}}" style="display:block">
+				<label>{{item.quantity}}</label> <button id="edit" type="button" class="btn btn-outline-warning"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+			</div>
+		</td> <!-- 数量 end -->
+		
+		<td id="tp{{item.uid}}"></th><!-- 总价 -->
+		<td>{{stock}}</th><!-- 库存 -->
+		<td>{{item.get_status_display}}</th><!-- 状态 -->
+		
+		<td> <!-- 操作 start -->
+		{% if item.status != 's' %}
+		<div id="checks"> 
+			<input type="radio" id="s{{item.uid}}" class="rds" name="check{{ forloop.counter }}" value="ok/{{item.uid}}">
+			<label for="s{{item.uid}}">已发放</label>
+			<input type="radio" id="w{{item.uid}}" class="rdw" name="check{{ forloop.counter }}" value="wait/{{item.uid}}">
+			<label for="w{{item.uid}}">待发放</label>
+			<input type="radio" id="e{{item.uid}}" class="rde" name="check{{ forloop.counter }}" value="no/{{item.uid}}">
+			<label for="e{{item.uid}}">无货</label>
+		</div>
+		{% else %}
+			<div id="checks" style="display:none;"> 
+				<input type="radio" id="s{{item.uid}}" class="rds" name="check{{ forloop.counter }}" value="ok/{{item.uid}}" checked>
+			</div>
+		{% endif %}
+		</td> <!-- 操作 end -->
+		
+		</thead>
+	</tr>
+	<script>
+		document.getElementById("ip{{item.uid}}").innerHTML=formatCurrency({{item.price}});
+		document.getElementById("tp{{item.uid}}").innerHTML=formatCurrency({{item.price}} * {{item.quantity}});
+		$('#iplabel{{item.uid}} #edit').click(function(){
+			$('#iplabel{{item.uid}}').css("display","none");
+			$('#ipinput{{item.uid}}').css("display","block");
+		})
+		$('#ipinput{{item.uid}} #cancel').click(function(){
+			$('#iplabel{{item.uid}}').css("display","block");
+			$('#ipinput{{item.uid}}').css("display","none");
+		})
+		$('#iqlabel{{item.uid}} #edit').click(function(){
+			$('#iqlabel{{item.uid}}').css("display","none");
+			$('#iqinput{{item.uid}}').css("display","block");
+		})
+		$('#iqinput{{item.uid}} #cancel').click(function(){
+			$('#iqlabel{{item.uid}}').css("display","block");
+			$('#iqinput{{item.uid}}').css("display","none");
+		})
+		
+		$('#s{{item.uid}}').change(function(){
+			if($('#q{{item.quantity}}').prop('readonly',false)){
+				$('#q{{item.quantity}}').prop('value',{{item.quantity}});
+				$('#q{{item.quantity}}').prop('readonly',true);
+			}
+			if($('#wall').prop('checked')){
+				$('#wall').prop('checked',false);
+			}
+			if($('#eall').prop('checked')){
+				$('#eall').prop('checked',false);
+			}
+		});
+		
+		$('#w{{item.uid}}').change(function(){
+			if($('#q{{item.quantity}}').prop('readonly',false)){
+				$('#q{{item.quantity}}').prop('value',{{item.quantity}});
+				$('#q{{item.quantity}}').prop('readonly',true);
+			}
+			if($('#sall').prop('checked')){
+				$('#sall').prop('checked',false);
+			}
+			if($('#eall').prop('checked')){
+				$('#eall').prop('checked',false);
+			}
+		});
+		
+		$('#e{{item.uid}}').change(function(){
+			if($('#q{{item.quantity}}').prop('readonly',false)){
+				$('#q{{item.quantity}}').prop('value',{{item.quantity}});
+				$('#q{{item.quantity}}').prop('readonly',true);
+			}
+			if($('#sall').prop('checked')){
+				$('#sall').prop('checked',false);
+			}
+			if($('#wall').prop('checked')){
+				$('#wall').prop('checked',false);
+			}
+		});
+		
+		var is{{ forloop.counter }}checked = false;
+		
+		$(document).ready(function(){
+			checklist ++;
+		});
+		$('input:radio[name="check{{ forloop.counter }}"]').change(function(){
+			if ($(this).is(':checked') && $(this).val() == "ok/{{item.uid}}"){
+				if (is{{ forloop.counter }}checked){
+					totalprice += 0;
+				} else {
+					totalprice += {{item.price}} * {{item.quantity}};
+				}
+				is{{ forloop.counter }}checked = true;
+				$('#tp').html(formatCurrency(totalprice));
+				$('#pd').html(formatCurrency(totalprice * discount));
+			}
+		});
+		
+		$('input:radio[name="check{{ forloop.counter }}"]').change(function(){
+			if ($(this).is(':checked') && $(this).val() == "wait/{{item.uid}}"){
+				if (is{{ forloop.counter }}checked){
+					totalprice += 0;
+				} else {
+					totalprice += {{item.price}} * {{item.quantity}};
+				}
+				is{{ forloop.counter }}checked = true;
+				$('#tp').html(formatCurrency(totalprice));
+				$('#pd').html(formatCurrency(totalprice * discount));
+			}
+		});
+		
+		$('input:radio[name="check{{ forloop.counter }}"]').change(function(){
+			if ($(this).is(':checked') && $(this).val() == "no/{{item.uid}}"){
+				if (is{{ forloop.counter }}checked){
+					totalprice -= {{item.price}} * {{item.quantity}};
+				} else {
+					totalprice += 0;
+				}
+				is{{ forloop.counter }}checked = false;
+				$('#tp').html(formatCurrency(totalprice));
+				$('#pd').html(formatCurrency(totalprice * discount));
+			}
+		});
+
+	</script>
+{% if forloop.last %}
+	<tr>
+		<th></th>
+		<th></th>
+		<th></th>
+		<th>
+		<label id="tp"></label>
+		× %<input type="number" id="discount" name="discount" step="1" min="0" max="100" style="width:80px" value="{{order.corp.dftdiscount}}"/>
+		</th>
+		<th></th>
+		<th>
+			全选：
+		</th>
+		<th>
+		{% if order.status == 'o' %}
+			<div>
+				<input type="radio" class="rds" id="sall" name="mall" value="s">
+				<label for="s">已发放</label>
+				<input type="radio" class="rdw" id="wall" name="mall" value="w">
+				<label for="w">待发放</label>
+				<input type="radio" class="rde" id="eall" name="mall" value="e">
+				<label for="e">无货</label>
+			</div>
+		{% else %}
+			<div>
+				<input type="radio" class="rds" id="sall" name="mall" value="s">
+				<label for="s">已发放</label>
+			</div>
+		{% endif %}
+		</th>
+	</tr>
+	<tr>
+		<th></th>
+		<th></th>
+		<th></th>
+		<th id="pd"></th>
+		<th></th>
+		<th>
+			<button type="submit" id="sub" class="btn btn-warning" disabled>更新订单</button>
+			<input type="button" class="btn btn-outline-primary" onclick="goBack()" action="" value="返回" />
+		</th>
+	</tr>
+	<script>
+		$(document).ready(function(){
+			discount = $('#discount').val() / 100;
+		});
+		$('#discount').change(function(){
+			discount = $(this).val() / 100;
+			$('#pd').html(formatCurrency(totalprice * discount));
+		});
+		$('#sall').click(function(event){
+			if(this.checked){
+				$(':radio.rds').each(function(){
+					this.checked = true;  
+					totalprice = {{order.totalprice}};
+					$('#tp').html(formatCurrency(totalprice));
+					$('#pd').html(formatCurrency(totalprice * discount));
+					var i;
+					for (i = 0; i <= checklist; i++){
+						eval('is'+i+'checked'+'= '+ true +';');
+					}
+				});
+			} else {
+				$(':radio.rds').each(function(){
+					this.checked = false;  
+				});
+			}
+		});
+		
+		$('#wall').click(function(event){
+			if(this.checked){
+				$(':radio.rdw').each(function(){
+					this.checked = true;  
+					totalprice = {{order.totalprice}};
+					$('#tp').html(formatCurrency(totalprice));
+					$('#pd').html(formatCurrency(totalprice * discount));
+					var i;
+					for (i = 0; i <= checklist; i++){
+						eval('is'+i+'checked'+'= '+ true +';');
+					}
+				});
+			} else {
+				$(':radio.rdw').each(function(){
+					this.checked = false;  
+				});
+			}
+		});
+
+		$('#eall').click(function(event){
+			if(this.checked){
+				$(':radio.rde').each(function(){
+					this.checked = true;  
+					totalprice = 0;
+					$('#tp').html(formatCurrency(totalprice));
+					$('#pd').html(formatCurrency(totalprice * discount));
+				});
+			} else {
+				$(':radio.rde').each(function(){
+					this.checked = false;  
+				});
+			}
+		});
+		
+		$(':radio').change(function(){
+			var names = {};
+			$(':radio').each(function(){
+				names[$(this).attr('name')] = true;
+			});
+			var count = 0;
+			$.each(names,function(){
+				count++;
+			});
+			if($(':radio:checked').length >= count-1){
+				$("#sub").prop('disabled',false);
+			}
+			else{
+				$("#sub").prop('disabled',true);
+			}
+		}).change();
+		
+	</script>
+{% endif %}
+{% endfor %}
+
+</table>
+</form>
+<script>
+	var x = false;
+	function validateForm(){
+		if( x == true){
+			return true;
+		} else {
+			return false;
+		}
+		
+	};
+	
+	$("#sub").click(function(){
+		x = true;
+	});
+</script>
+{% endblock %}

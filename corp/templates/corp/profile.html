@@ -1,0 +1,32 @@
+{% extends "base_generic.html" %}
+{% block content %}
+{% load static %}
+<h1>
+	<img src="{% static 'img/WindowIcons/attributes.png' %}" alt="" width="64" height="64">
+	指定主角色
+</h1>
+	
+<div class="row" style="padding-top:15vh;">
+<div class="col"></div>
+<div class="col border rounded border-secondary p-5 text-center">
+	<p>为用户{{user}}指定一个主角色</p>
+	<p class="bg-warning text-body rounded p-3">
+		<i class="fa fa-exclamation" aria-hidden="true"></i>
+		<strong>注意</strong>  主角色一经指定便无法修改 绑定时请仔细确认
+		<i class="fa fa-exclamation" aria-hidden="true"></i>
+	</p>
+	<form method="post">
+		{% csrf_token %}
+		<div>
+		{{ profile_form }}
+			<div class="pt-2">
+				<button type="submit" class="btn btn-success">就决定是你了！</button>
+			</div>
+		</div>
+	</form>
+</div>
+<div class="col"></div>
+
+</div>
+
+{% endblock %}

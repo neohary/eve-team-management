@@ -1,0 +1,125 @@
+.sidebar-nav {
+    margin-top: 20px;
+    padding: 0;
+    list-style: none;
+}
+
+/* Remove default bullets */
+ul, #mktUL {
+  list-style-type: none;
+}
+
+ul{
+	padding-inline-start: 10px;
+}
+
+/* Remove margins and padding from the parent ul */
+#mktUL {
+  margin: 0;
+  padding: 0;
+}
+
+/* Style the caret/arrow */
+.mktcaret {
+  cursor: pointer;
+  user-select: none; /* Prevent text selection */
+}
+
+
+/* Hide the nested list */
+.nested {
+  display: none;
+}
+
+/* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
+.active {
+  display: block;
+}
+
+
+#sidebar {
+	min-height: 100vh;
+	min-width: 100%;
+}
+#sidebarcell{
+	
+	min-height: 35px;
+	margin-top:0px;
+	padding-left:64px;
+	border-bottom:#343a40 1px solid;
+}
+
+#sidebarcell:hover{
+	background-color:#545b62;
+
+}
+
+.navbar-title{
+	padding-left:1em;
+	padding-top:1em;
+	padding-bottom:0.5em;
+	font-weight: bold;
+}
+
+.bg-dark{
+	background-color:#1c2023 !important;
+	margin-right:1em;
+}
+
+.sidebar-header{
+	width:100%;
+	top:0;
+	display:flex;
+	border-bottom: 1px solid #464a52;
+	box-shadow: 0px 1px 5px #282c33;
+}
+
+.sidebar-footer{
+	position: absolute;
+	width:100%;
+	bottom:0;
+	display:flex;
+	border-top: 1px solid #464a52;
+	box-shadow: 0px -1px 5px #282c33;
+}
+
+.sidebar-info{
+	border-bottom: 1px solid #464a52;
+	box-shadow: 0px 1px 3px #282c33;
+}
+
+.float-right{
+	margin-top:2%;
+	
+}
+
+.dot {
+  height: 12px;
+  width: 12px;
+  background-color: #1eea4d;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.mkt-nav-btn{
+	min-width:100%;
+	text-align:left;
+	border-radius: 0px !important;
+	margin:0px;
+}
+
+.itemlist {
+  height:80vh;
+  overflow-y: scroll;
+}
+
+.line-limit-length {
+	max-width:200px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+
+
+

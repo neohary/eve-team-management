@@ -1,0 +1,14 @@
+{% extends "base_generic.html" %}
+{% block content %}
+<h1>通知</h1>
+{% if notices %}
+<a href="{% url 'notice-update' %}" class="btn btn-warning" role="button">全部标为已读</a>
+{% else %}
+<span>目前没有未读通知</span>
+{% endif %}
+
+{% for notice in notices %}
+<li>{{notice.verb}} {{ notice.timestamp|timesince }} 之前</li>
+{% endfor %}
+
+{% endblock %}

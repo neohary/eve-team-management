@@ -1,0 +1,24 @@
+{% extends "base_generic.html" %}
+{% block content %}
+
+
+<div class="row justify-content-center">
+
+<div class="col-sm-5 alert alert-success" style="text-align:center;">
+{% if messages %}
+	{% for message in messages %}
+	<p><i class="fa fa-check" aria-hidden="true"></i>{{message}}</p>
+	{% endfor %}
+{% endif %}
+<p><a href="{% url 'my-orders' %}">如果页面没有自动跳转 请点击这里</a></p>
+</div>
+</div>
+
+
+<script>
+var delay = 2000;
+setTimeout(function(){
+	window.location = "{% url 'my-orders' %}";
+},delay);
+</script>
+{% endblock %}

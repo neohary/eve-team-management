@@ -1,0 +1,24 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% load static %}
+<h1>
+	<img src="{% static 'img/WindowIcons/terminate.png' %}" alt="" width="64" height="64">
+	删除角色
+</h1>
+
+<div class="row">
+<div class="col"></div>
+	<div class="col text-center border rounded border-secondary p-5">
+		<img class="rounded" src="https://image.evepc.163.com/Character/{{evecharacter.ingame_id}}_128.jpg" alt="">
+		<p class="pt-2">你确定要删除 {{ evecharacter }} 吗？</p>
+
+		<form action="" method="POST">
+		{% csrf_token %}
+		<input type="submit" class="btn btn-outline-danger" action="" value="是的" style="width:100%;margin-top:5px;"/>
+		<input type="button" class="btn btn-outline-primary" onclick="goBack()" action="" value="返回" style="width:100%;margin-top:5px;"/>
+		</form>
+	</div>
+<div class="col"></div>
+</div>
+{% endblock %}

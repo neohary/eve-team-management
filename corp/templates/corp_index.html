@@ -1,0 +1,91 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% load static %}
+<div>
+	<h1>
+		<img src="{% static 'img/WindowIcons/alliances.png' %}" alt="" width="64" height="64">
+		军团索引列表
+	</h1>
+	<ul>
+		<li>当前有{{corps|length}}家军团注册本站</li>
+		<li>当前有{{character}}名玩家注册本站</li>
+	</ul>
+	<ul class="messages">
+{% for message in messages %}
+	{% if message.tags == 'success' %}
+    <div class="alert alert-success alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>成功</strong> {{message}}
+	</div>
+	{% elif message.tags == 'error' %}
+    <div class="alert alert-danger alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>错误</strong> {{message}}
+	</div>
+	{% else %}
+	<div class="alert alert-warning alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>其他</strong> {{message}}
+	</div>
+	{% endif %}
+{% endfor %}
+</ul>
+</div>
+	<div class="bg-light text-dark">
+		{% for corp in corps %}
+			{% if forloop.first %}
+			<table id="corplist" class="display">
+				<thead>
+				<tr>
+					<th>序号</th>
+					<th>名称</th>
+					<th>CEO</th>
+					<th>联盟</th>
+					<th>操作</th>
+				</tr>
+				</thead>
+				<tbody>
+			{% endif %}
+				<tr>
+					<td>{{corp.id}}</td>
+					<td>
+						<img class="rounded bg-dark" src="https://image.evepc.163.com/Corporation/{{corp.ingame_id}}_64.png" alt="">
+						{{corp.name}}{% if corp.codename %}({{corp.codename}}){% endif %}
+					</td>
+					<td>
+						<img class="rounded-circle" src="https://image.evepc.163.com/Character/{{corp.ceo.ingame_id}}_128.jpg" alt="" width="64" height="64">
+						{{corp.ceo.name}}
+					</td>
+					<td>
+						<img class="rounded bg-dark" src="https://image.evepc.163.com/Alliance/{{corp.alliance.ingame_id}}_64.png" alt="">
+						{{corp.alliance.name}}{% if corp.alliance.codename %}({{corp.alliance.codename}}){% endif %}
+					</td>
+					<td>
+						{% if user.profile.pcharacter.corp is None %}
+						<a href="{% url 'submit-verification' pk=corp.id %}" class="btn btn-primary" role="button">申请加入</s>
+						{% endif %}
+					</td>
+				</tr>
+			{% if forloop.last %}
+				</tbody>
+				<tfoot>
+				<tr>
+					<th>序号</th>
+					<th>名称</th>
+					<th>CEO</th>
+					<th>联盟</th>
+					<th>操作</th>
+				</tr>
+				</tfoot>
+			</table>
+			{% endif %}
+		{% endfor %}
+	</div>
+	
+<script>
+	$(document).ready(function() {
+		$('#corplist').DataTable();
+	} );
+</script>
+{% endblock %}

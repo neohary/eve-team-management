@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+	{% if form.errors %}
+		<ul class="messages">
+			<div class="alert alert-danger alert-dismissible">
+				<button type="button" class="close" data-dismiss="alert">×</button>
+				<strong>登录失败</strong> 账号或密码错误，请重试。
+			</div>
+		</ul>
+		{% endif %}
+
+		{% if next %}
+			{% if user.is_authenticated %}
+			<ul class="messages">
+				<div class="alert alert-danger alert-dismissible">
+					<button type="button" class="close" data-dismiss="alert">×</button>
+					<strong>权限不足</strong> 你的账号没有权限访问此页，如果你有足够权限的账号，请登录那个账号以继续。
+				</div>
+			{% endif %}
+		{% endif %}
+		<form method="post" action="{% url 'login' %}">
+			{% csrf_token %}
+		<div class="row" style="min-height:33vh;">
+			<div class="col-sm-3"></div>
+			<div class="col-sm-6 align-self-center text-center" style="padding-top:15em;">
+				<h1 style="letter-spacing: 0.1em;">QSDEBLMS v1.0</h1>
+				<small style="letter-spacing: 0.5em;">圈圈牌SDE后勤管理系统</small>
+			</div>
+			<div class="col-sm-3"></div>
+		</div>
+		<div class="row">
+			<div class="col-sm-3"></div>
+			<div class="col-sm-6 align-self-center" style="padding-top:3em;">
+				<div class="rounded text-center" style="border:#6c757d 1px solid;padding:33px;background-color: rgba(23, 24, 25, 0.82);">
+				<div class="row">
+					<div class="col-sm-2"></div>
+					<div class="col-sm-8">
+						<div class="input-group form-group mb-3">
+						<div class="input-group-prepend">
+							<span class="input-group-text">
+								<i class="fa fa-user" aria-hidden="true"></i>
+							</span>
+						</div>
+						<input type="text" class="form-control" name="username" autofocus="" autocapitalize="none" autocomplete="username" maxlength="150" required="" id="id_username" placeholder="输入账号">
+					</div>
+					<div class="input-group form-group mb-3">
+						<div class="input-group-prepend">
+							<span class="input-group-text">
+								<i class="fa fa-key" aria-hidden="true"></i>
+							</span>
+						</div>
+						<input type="password" class="form-control" name="password" autocomplete="current-password" required="" id="id_password" placeholder="输入密码">
+					</div>
+					</div>
+					<div class="col-sm-2"></div>
+				</div>
+					
+
+					<div>
+						<div class="row" style="margin-left:3px;">
+							<div class="form-check-label col-sm-2">
+								<input type="checkbox" class="form-check-input" value="" disabled/><s data-toggle="tooltip" title="Cookie过期功能还在开发中 在公共电脑访问时请记得手动登出" class="text-muted">记住我</s>
+							</div>
+							<div class="col-sm-7">
+								<input type="submit" class="btn btn-outline-warning" style="min-width:100%;" value="登录" />
+							</div>
+							<div class="col-sm-3">
+								<a href="{% url 'signup' %}" class="btn btn-outline-danger" style="min-width:100%;" >注册</a>
+							</div>
+						</div>
+						
+						<input type="hidden" name="next" value="{{ next }}" />
+					</div>
+					<p style="float:left;"><a href="" class="text-muted" data-toggle="tooltip" title="邮件功能开发中，如果忘记密码，请联系圈圈">重置密码</a></p>
+					<!-- {% url 'password_reset' %} -->
+				</div>
+			</div>
+			<div class="col-sm-3"></div>
+		</div>
+		<div class="row" style="min-height:20vh;"></div>
+		<script>
+			$(document).ready(function(){
+			$('[data-toggle="tooltip"]').tooltip();
+			});
+		</script>
+		</form>
+		
+
+{% endblock %}

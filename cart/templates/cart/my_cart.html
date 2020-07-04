@@ -1,0 +1,146 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% load static %}
+<h1><img src="{% static 'img/WindowIcons/cargo.png' %}" alt="" width="64" height="64">购物车</h1>
+
+<ul class="messages">
+{% for message in messages %}
+	{% if message.tags == 'success' %}
+    <div class="alert alert-success alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>成功</strong> {{message}}
+	</div>
+	{% elif message.tags == 'error' %}
+    <div class="alert alert-danger alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>错误</strong> {{message}}
+	</div>
+	{% else %}
+	<div class="alert alert-warning alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>其他</strong> {{message}}
+	</div>
+	{% endif %}
+{% endfor %}
+</ul>
+
+<script>
+var totalprice = 0;
+</script>
+<div class="row justify-content-center pt-5">
+<form id="cart{{user}}" action="{% url 'create-order' %}" method="POST">
+{% csrf_token %}
+<div class="col">
+	<table class="table text-light table-responsive table-dark table-hover">
+	{% for cart,sumprice in data %}
+	{% if forloop.first %}
+		<tr>
+			<thead scope="col">
+			<th>选择</th>
+			<th>物品</th>
+			<th>单价</th>
+			<th>数量</th>
+			<th>总计</th>
+			<th>操作</th>
+			</thead>
+		</tr>
+	{% endif %}
+		<tr>
+			<td><input value="{{cart.id}}" type="checkbox" id="cart{{cart.id}}" name="cart"></td>
+			<td><img src="https://image.evepc.163.com/Type/{{cart.item.typeid}}_64.png" alt="" width="32" height="32" style="margin-right:10px;">{{cart.item.typename}}</td>
+			<td id="p{{ cart.item.typeid }}"></td>
+			<td>{{cart.quantity}}</td>
+			<td id="tp{{ cart.item.typeid }}"></td>
+			<td><a href="{% url 'delete-cart' cart.id %}" class="btn btn-danger" role="button"><i class="fa fa-trash" aria-hidden="true"></i></a></td>
+		</tr>
+	<script>
+		document.getElementById("p{{ cart.item.typeid }}").innerHTML=formatCurrency({{cart.price}})
+		document.getElementById("tp{{ cart.item.typeid }}").innerHTML=formatCurrency({{sumprice}})
+		$("#cart{{cart.id}}").change(function(){
+			if(this.checked) {
+				totalprice += {{sumprice}};
+				$("#totalprice").text(formatCurrency(totalprice));
+				
+				if($('#submit').prop('disabled',true)){
+					$('#submit').prop('disabled',false);
+				}
+			}
+			else{
+				if($('#checkall').prop('checked')){
+					$('#checkall').prop('checked',false);
+					totalprice = {{totalprice}};
+					totalprice -= {{sumprice}};
+					$("#totalprice").text(formatCurrency(totalprice));
+				}
+				else{
+					totalprice -= {{sumprice}};
+					$("#totalprice").text(formatCurrency(totalprice));
+				}
+			}
+		});
+	</script>
+{% if forloop.last %}
+	<tr>
+		<th><input type="checkbox" id="checkall">全选</th>
+		<th></th>
+		<th></th>
+		<th>收货角色：
+			<select name="character" id="c{{cart.id}}">
+				{% for ch in charselect %}
+				<option value="{{ch}}">{{ch}}</option>
+				{% endfor %}
+			</select>
+		</th>
+		<th id="totalprice"></th>
+		<th><input id="submit" type="submit" value="提交订单" class="btn btn-success"/></th>
+	</tr>
+	<script>
+		//document.getElementById("totalprice").innerHTML=formatCurrency({{totalprice}})
+		$(document).ready(function(){
+			$('#submit').prop('disabled',true);
+			
+			$('#submit').click(function(){
+				setTimeout(function(){
+					disableButton();
+				},100);
+			});
+		});
+		
+		function disableButton() {
+			$('#submit').prop('disabled',true);
+		}
+		
+		$(document).ready(function(){
+			$("#totalprice").text("勾选你确定购买的品项");
+		})
+		
+		// Listen for click on toggle checkbox
+		$('#checkall').click(function(event) {   
+			if(this.checked) {
+        // Iterate each checkbox
+				if($('#submit').prop('disabled',true)){
+					$('#submit').prop('disabled',false);
+				}
+				$(':checkbox').each(function() {
+					this.checked = true;       
+					$("#totalprice").text(formatCurrency({{totalprice}}));
+				});
+			} else {
+				$(':checkbox').each(function() {
+					this.checked = false;   
+					totalprice = 0
+					$("#totalprice").text(formatCurrency(totalprice));
+				});
+			}
+		});
+	</script>
+{% endif %}
+{% empty %}
+<p>购物车中没有物品</p>
+{% endfor %}
+</table>
+</div>
+</form>
+</div>
+{% endblock %}

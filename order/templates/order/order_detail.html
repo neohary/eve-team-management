@@ -1,0 +1,84 @@
+{% extends "base_generic.html" %}
+{% block content %}
+{% load static %}
+
+<h1>
+	<img src="{% static 'img/WindowIcons/contracts.png' %}" alt="" width="64" height="64">
+	<img class="rounded" src="https://image.evepc.163.com/Character/{{order.receiver.ingame_id}}_128.jpg" alt="" width="64" height="64">
+	{{order.receiver}} 的订单
+</h1>
+<p>状态：<strong>{{order.get_status_display}}</strong> 提交日期：<strong>{{order.createdate}}</strong> {% if order.finishdate %} 完成日期：<strong>{{order.finishdate}}</strong> {% endif %}</p>
+<div class="container">
+<table class="table table-dark table-striped">
+{% for i in itemlist %}
+{% if forloop.first %}
+	<tr>
+		<thead>
+		<th scope="col">物品</th>
+		<th>数量</th>
+		<th>单价</th>
+		<th>状态</th>
+		</thead>
+	</tr>
+{% endif %}
+	<tr>
+		<thead>
+		<td>
+			<img src="https://image.evepc.163.com/Type/{{i.item.typeid}}_64.png" alt="" width="32" height="32" style="margin-right:10px;">
+			<label id="name">{{i.item.typename}}</label>
+		</td>
+		<td>{{i.quantity}}</td>
+		<td id="ip{{forloop.counter}}"></td>
+		<td>{{i.get_status_display}}</td>
+		</thead>
+	</tr>
+	<script>
+		document.getElementById("ip{{forloop.counter}}").innerHTML=formatCurrency({{i.price}});
+	</script>
+{% if forloop.last %}
+		<th>总计</th>
+		<td>{{order.itemcount}}</td>
+		<td>
+			<s id="tp"></s><br/>
+			<span id="tpd"></span>
+			<span id="discount" class="badge badge-success"></span>
+		</td>
+		<td>
+		{% if order.status == "o" %}
+		<div class="d-flex">
+		<div style="margin-right:1em;">
+		<form action="{% url 'cancel-order' order.uid %}">
+			<input id="submit" type="submit" class="btn btn-danger" value="取消订单" />
+			
+			<script>
+				$(document).ready(function(){
+					$('#submit').click(function(){
+				setTimeout(function(){
+					disableButton();
+				},100);
+					});
+				});
+		
+				function disableButton() {
+					$('#submit').prop('disabled',true);
+				}
+			</script>
+		</form>
+		{% endif %}
+		</div>
+		<div>
+			<button onclick="goBack()" class="btn btn-primary">返回</button>
+		</div>
+		</div>
+		</td>
+	<script>
+		document.getElementById("tp").innerHTML=formatCurrency({{order.totalprice}});
+		document.getElementById("tpd").innerHTML=formatCurrency({{order.totalprice}} * ({{order.discount}} / 100));
+		$("#discount").html((100-{{order.discount}}) + "% OFF");
+	</script>
+{% endif %}
+{% endfor %}
+
+</table>
+</div>
+{% endblock %}

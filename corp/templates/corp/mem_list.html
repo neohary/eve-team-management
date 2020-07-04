@@ -1,0 +1,132 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<ul class="messages">
+{% for message in messages %}
+	{% if message.tags == 'success' %}
+    <div class="alert alert-success alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>成功</strong> {{message}}
+	</div>
+	{% elif message.tags == 'error' %}
+    <div class="alert alert-danger alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>错误</strong> {{message}}
+	</div>
+	{% else %}
+	<div class="alert alert-warning alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>其他</strong> {{message}}
+	</div>
+	{% endif %}
+{% endfor %}
+</ul>
+{% load static %}
+<div>
+	<h1 class="d-flex justify-content-between">
+		<div>
+			<img src="{% static 'img/WindowIcons/grouplist.png' %}" alt="" width="64" height="64">
+			成员列表
+		</div>
+		<div>
+			<img class="rounded-circle" src="https://image.evepc.163.com/Corporation/{{corp.ingame_id}}_64.png" alt="" width="64" height="64">
+			{{corp}}
+		</div>
+	</h1>
+</div>
+
+
+
+<div class="col bg-light text-body">
+	<table id="memlist" class="display">
+	{% for user in userlist %}
+	{% if forloop.first %}
+		<thead>
+			<tr>
+				<th>用户名</th>
+				<th>角色</th>
+				<th>权限</th>
+				<th>DKP</th>
+				<th>注册时间</th>
+				<th>上次登录</th>
+			</tr>
+		</thead>
+		<tbody>
+	{% endif %}
+		<tr>
+			<td>{{user.get_username}}{% if user.profile.nickname %}({{user.profile.nickname}}) {% endif %}</td>
+			
+			<td>
+			{% for char in evecharacter %}
+			{% if char.bounduser == user %}
+			<div class="pt-1">
+			<img class="rounded-circle" src="https://image.evepc.163.com/Character/{{char.ingame_id}}_128.jpg" alt="" width="32" height="32">
+				{{char}}
+			</div>
+			{% endif %}
+			{% endfor %}
+			</td>
+			
+			<td>
+			{% for group in user.groups.all %}
+				{% if group.name == '军团成员' %}
+					<label class="badge badge-primary">{{ group }}</label>
+				{% elif group.name == '后勤官' %}
+					<label class="badge badge-success">{{ group }}</label>
+				{% elif group.name == '人事' %}
+					<label class="badge badge-info">{{ group }}</label>
+				{% elif group.name == 'CEO' %}
+					<label class="badge badge-danger">{{ group }}</label>
+				{% elif group.name == '统计官' %}
+					<label class="badge badge-warning">{{ group }}</label>
+				{% elif group.name == '总监' %}
+					<label class="badge badge-danger">{{ group }}</label>
+				{% else %}
+					<label class="badge badge-secondary">{{ group }}</label>
+				{% endif %}
+			{% endfor %}
+			</td>
+			
+			<td>{{user.profile.dkp}}</td>
+			
+			<td>{{user.date_joined}}</td>
+			
+			<td>{{user.last_login}}</td>
+			
+			</tr>
+	
+	{% if forloop.last %}
+		</tbody>
+		<tfoot>
+			<tr>
+				<th>用户名</th>
+				<th>角色</th>
+				<th>权限</th>
+				<th>DKP</th>
+				<th>注册时间</th>
+				<th>上次登录</th>
+			</tr>
+		</tfoot>
+	{% endif %}
+	{% endfor %}
+	</table>
+</div>
+
+
+
+
+<script>
+	$(document).ready(function() {
+    $('#memlist').DataTable();
+	} );
+</script>
+
+
+
+
+
+
+
+
+
+{% endblock %}

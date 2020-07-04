@@ -1,0 +1,188 @@
+{% extends "base_generic.html" %}
+{% block content %}
+<ul class="messages">
+{% for message in messages %}
+	{% if message.tags == 'success' %}
+    <div class="alert alert-success alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>成功</strong> {{message}}
+	</div>
+	{% elif message.tags == 'error' %}
+    <div class="alert alert-danger alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>错误</strong> {{message}}
+	</div>
+	{% else %}
+	<div class="alert alert-warning alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>其他</strong> {{message}}
+	</div>
+	{% endif %}
+{% endfor %}
+</ul>
+{% load static %}
+<h1>
+	<img src="{% static 'img/WindowIcons/contracts.png' %}" alt="" width="64" height="64">
+	我的订单
+</h1>
+<div class="text-body bg-light">
+<ul class="nav nav-tabs">
+	<li class="nav-item">
+		<a class="nav-link active" data-toggle="tab" href="#menu1">已提交</a>
+	</li>
+	<li class="nav-item">
+		<a class="nav-link" data-toggle="tab" href="#menu2">已完成</a>
+	</li>
+</ul>
+
+<div class="tab-content">
+	<div id="menu1" class="tab-pane active">
+		<table id="table1" class="display">
+		{% for od in order_list %}
+			{% if forloop.first %}
+			<thead>
+				<tr>
+					<th>订单ID</th>
+					<th>收货角色</th>
+					<th>品项</th>
+					<th>总价</th>
+					<th>状态</th>
+					<th>创建日期</th>
+					<th>完成日期</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% endif %}
+			
+			{% if od.status == 'o' or od.status == 'p' %}
+			<tr>
+				<td class="line-limit-length"><a href="{{od.get_absolute_url}}">{{od.uid}}</a></td>
+				<td>
+					<div>
+					<img class="rounded-circle" src="https://image.evepc.163.com/Character/{{od.receiver.ingame_id}}_128.jpg" alt="" width="32" height="32">
+					{{od.receiver}}
+					</div>
+				</td>
+				<td>{{od.itemcount}}</td>
+				<td id="tp{{od.uid}}"></td>
+				<td>
+					{% if od.status == 'o' %}<label class="badge badge-primary">{{od.get_status_display}}</label>{% endif %}
+					{% if od.status == 'p' %}<label class="badge badge-warning">{{od.get_status_display}}</label>{% endif %}
+				</td>
+				<td>{{od.createdate}}</td>
+				<td>{{od.finishdate}}</td>
+				<td>{% if od.status == "o" %}
+					<form action="{% url 'cancel-order' od.uid %}">
+						<button id="submit" type="submit" class="btn btn-danger btn-block"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+					<script>
+						$('#submit').click(function(){
+						setTimeout(function(){
+							disableButton();
+						},100);
+						});
+		
+						function disableButton() {
+							$('#submit').prop('disabled',true);
+						}
+					</script>
+					</form>
+				{% endif %}</td>
+			</tr>
+			<script>
+				document.getElementById("tp{{od.uid}}").innerHTML=formatCurrency({{od.totalprice}})
+			</script>
+			{% endif %}
+			{% if forloop.last %}
+			</tbody>
+			<tfoot>
+				<tr>
+					<th>订单ID</th>
+					<th>收货角色</th>
+					<th>品项</th>
+					<th>总价</th>
+					<th>状态</th>
+					<th>创建日期</th>
+					<th>完成日期</th>
+					<th>操作</th>
+				</tr>
+			</tfoot>
+			{% endif %}
+		{% endfor %}
+		</table>
+		<script>
+			$(document).ready(function() {
+				$('#table1').DataTable();
+			} );
+		</script>
+	</div>
+	<div id="menu2" class="tab-pane fade">
+		<table id="table2" class="display">
+			{% for od in order_list %}
+			{% if forloop.first %}
+			<thead>
+				<tr>
+				<th>订单ID</th>
+				<th>收货角色</th>
+				<th>品项</th>
+				<th>总价</th>
+				<th>状态</th>
+				<th>创建日期</th>
+				<th>完成日期</th>
+				<th>操作</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% endif %}
+		{% if od.status == 'f' %}
+			<tr>
+				<td class="line-limit-length"><a href="{{od.get_absolute_url}}">{{od.uid}}</a></td>
+				<td>
+					<div>
+					<img class="rounded-circle" src="https://image.evepc.163.com/Character/{{od.receiver.ingame_id}}_128.jpg" alt="" width="32" height="32">
+					{{od.receiver}}
+					</div>
+				</td>
+				<td>{{od.itemcount}}</td>
+				<td>
+				<label id="tp{{od.uid}}"></label>
+				<label id="discount{{od.uid}}" class="badge badge-success"></label>
+				</td>
+				<td>
+					{% if od.status == 'f' %}<label class="badge badge-success">{{od.get_status_display}}</label>{% endif %}
+				</td>
+				<td>{{od.createdate}}</td>
+				<td>{{od.finishdate}}</td>
+				<td><a href="{{od.get_absolute_url}}" class="btn btn-primary btn-block" role="button"><i class="fa fa-eye" aria-hidden="true"></i></a></td>
+			</tr>
+			<script>
+				document.getElementById("tp{{od.uid}}").innerHTML=formatCurrency({{od.totalprice}} * ({{od.discount}} / 100))
+				$("#discount{{od.uid}}").html((100-{{od.discount}}) + "% OFF");
+			</script>
+		{% endif %}
+		{% if forloop.last %}
+		</tbody>
+		<tfoot>
+			<tr>
+				<th>订单ID</th>
+				<th>收货角色</th>
+				<th>品项</th>
+				<th>总价</th>
+				<th>状态</th>
+				<th>创建日期</th>
+				<th>完成日期</th>
+				<th>操作</th>
+			</tr>
+		</tfoot>
+		{% endif %}
+		{% endfor %}
+		</table>
+		<script>
+			$(document).ready(function() {
+				$('#table2').DataTable();
+			} );
+		</script>
+	</div>
+</div>
+</div>
+{% endblock %}

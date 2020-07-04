@@ -1,0 +1,76 @@
+{% extends "base_generic.html" %}
+{% block content %}
+{% load static %}
+
+{% for s in storage %}
+	{% if forloop.first %}
+		<h1>
+			<img src="{% static 'img/WindowIcons/itemHangar.png' %}" alt="" width="64" height="64">
+			<img class="rounded-circle" src="https://image.evepc.163.com/Corporation/{{s.corp.ingame_id}}_64.png" alt="">
+			粘贴式库存更新表单
+		</h1>
+		<p>更新到{{s.corp}}的库存</p>
+		
+		<div class="form-group">
+		<form id="dform" action="" method="post">
+			{% csrf_token %}
+			<label for="id_raw_data">将库存数据粘贴到此处</label>
+			<textarea name="raw_data" class="form-control" cols="40" rows="10" required="" id="id_raw_data"></textarea>
+			<div class="pt-3" >
+			<button id="submit" type="submit" class="btn btn-outline-success" style="width:100%">更新库存</button>
+			<input type="button" class="btn btn-outline-primary" onclick="goBack()" action="" value="返回" style="width:100%;margin-top:5px;"/>
+			</div>
+			<script>
+				$(document).ready(function(){
+			$('#submit').prop('disabled',false);
+			
+			$('#submit').click(function(){
+				setTimeout(function(){
+					disableButton();
+					$('#submit').val("提交中");
+				},100);
+				setTimeout(function(){
+					enableButton();
+					$('#submit').val("更新库存");
+				},6000);
+			});
+		});
+		
+		function enableButton() {
+			$('#submit').removeAttr('disabled')
+		}
+		
+		function disableButton() {
+			$('#submit').prop('disabled',true);
+		}
+			</script>
+		</form>
+		</div>
+		<div class="row" style="margin-top:50px;margin-bottom:50px;">
+			<div class="col bg-secondary my-auto" style="height:1px;"></div>
+			<div class="col text-center my-auto"><h3>使用说明</h3></div>
+			<div class="col bg-secondary my-auto" style="height:1px;"></div>
+		</div>
+		
+		<div class="col text-center">
+			<img src="{% static 'img/tutorial/psuf01.jpg' %}" alt="" width="50%" height="50%" class="border border-secondary rounded">
+			<img src="{% static 'img/tutorial/psuf02.jpg' %}" alt="" width="40%" height="40%" class="border border-secondary rounded">
+		</div>
+		
+		
+<script>
+$("#dform").on("submit",function(){
+	$.ajax({
+		url:"{% url 'paste-storage-update' s.corp.pk %}",
+		data:("#dform").serialize,
+		success: function(data){
+			//alert(data.message);
+		},
+	})
+});
+</script>
+	{% endif %}
+{% empty %}
+	<p>军团不存在或未开通库存模块</p>
+{% endfor %}
+{% endblock %}

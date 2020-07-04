@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div>
+<ul class="messages">
+{% for field in signup_form %}
+	{% for error in field.errors %}
+		
+			<div class="alert alert-danger alert-dismissible">
+				<button type="button" class="close" data-dismiss="alert">×</button>
+				<strong>注册失败</strong> {{error}}
+			</div>
+		
+	{% endfor %}
+{% endfor %}
+</ul>
+</div>
+
+<div class="row" style="margin-top:20vh;">
+	<div class="col-sm-2"></div>
+	<div class="col-sm-8 rounded border border-secondary text-center" style="padding:20px;background-color: rgba(23, 24, 25, 0.82);">
+		<h2 style="letter-spacing: 0.1em;">账号注册</h2>
+		<small class="text-uppercase" style="letter-spacing: 0.1em;">Create Account</small>
+		<form method="post">
+		{% csrf_token %}
+		<div class="row pt-5">
+			<div class="col-sm-3"></div>
+			<div class="col-sm-6">
+				<div class="input-group form-group mb-3">
+					<div class="input-group-prepend">
+						<span class="input-group-text">
+								<i class="fa fa-user" aria-hidden="true"></i>
+							</span>
+					</div>
+						<input type="text" class="form-control" name="username" maxlength="150" autofocus="" required="" id="id_username" placeholder="用户名">
+				</div>
+				<div class="input-group form-group mb-3">
+					<div class="input-group-prepend">
+						<span class="input-group-text">
+								<i class="fa fa-envelope-o" aria-hidden="true"></i>
+							</span>
+					</div>
+						<input type="email" class="form-control" name="email" maxlength="254" required="" id="id_email" placeholder="电子邮箱">
+				</div>
+				<div class="input-group form-group mb-3">
+					<div class="input-group-prepend">
+						<span class="input-group-text">
+								<i class="fa fa-key" aria-hidden="true"></i>
+							</span>
+					</div>
+						<input type="password" class="form-control" name="password1" autocomplete="new-password" required="" id="id_password1" aria-autocomplete="list" placeholder="密码"
+						data-html="true" data-toggle="tooltip" data-original-title="◈ 不要使用与游戏账号相同的密码<br />◈ 密码长度至少为8个字符<br />◈ 密码不能是常见组合<br />◈ 密码不能是纯数字组合">
+				</div>
+				<div class="input-group form-group mb-3">
+					<div class="input-group-prepend">
+						<span class="input-group-text">
+								<i class="fa fa-key" aria-hidden="true"></i>
+							</span>
+					</div>
+						<input type="password" class="form-control" name="password2" autocomplete="new-password" required="" id="id_password2" placeholder="确认密码">
+				</div>
+				<div>
+						<button type="submit" class="btn btn-outline-warning" style="width:100%;">注册账号</button>
+				</div>
+				<div class="pt-3">
+					<p>已有账号？<a href="{% url 'login' %}" class="btn btn-outline-info btn-sm" style="width:100px;">登录</a></p>
+				</div>
+			</div>
+			<div class="col-sm-3"></div>
+		</div>
+		</form>
+		</div>
+	<div class="col-sm-2"></div>
+	<script>
+			$(document).ready(function(){
+			$('[data-toggle="tooltip"]').tooltip();
+			});
+		</script>
+</div>
+
+  
+{% endblock %}

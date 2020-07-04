@@ -1,0 +1,87 @@
+{% extends "base_generic.html" %}
+{% block content %}
+<ul class="messages">
+{% for message in messages %}
+	{% if message.tags == 'success' %}
+    <div class="alert alert-success alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>成功</strong> {{message}}
+	</div>
+	{% elif message.tags == 'error' %}
+    <div class="alert alert-danger alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>错误</strong> {{message}}
+	</div>
+	{% else %}
+	<div class="alert alert-warning alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>其他</strong> {{message}}
+	</div>
+	{% endif %}
+{% endfor %}
+</ul>
+{% load static %}
+<div>
+	<h1>
+		<img src="{% static 'img/WindowIcons/recruitment.png' %}" alt="" width="64" height="64">
+		{{corp}}的新成员申请
+	</h1>
+</div>
+
+<table class="table table-dark table-striped">
+{% for v_userlist,is_same_corp in userlist %}
+	{% if forloop.first %}
+	<thead>
+      <tr>
+        <th>申请人</th>
+        <th>主角色</th>
+        <th>军团</th>
+		<th>验证</th>
+		<th>操作</th>
+      </tr>
+    </thead>
+	<tbody>
+	{% endif %}
+	<tr>
+        <td>
+		<div style="margin-top:5%">
+			{{v_userlist.get_username}}{% if v_userlist.profile.nickname %}({{v_userlist.profile.nickname}}) {% endif %}
+		</div>
+		</td>
+		
+        <td>
+		<img class="rounded-circle" src="https://image.evepc.163.com/Character/{{v_userlist.profile.pcharacter.ingame_id}}_128.jpg" alt="" width="64" height="64">
+		{{v_userlist.profile.pcharacter}}
+		</td>
+		
+        <td>
+		<img class="rounded" src="https://image.evepc.163.com/Corporation/{{v_userlist.profile.pcharacter.corp.ingame_id}}_128.png" alt="" width="64" height="64">
+		{{v_userlist.profile.pcharacter.corp}}
+		</td>
+		
+		<td>
+			<div style="margin-top:3%;">
+				{% if is_same_corp %}
+				<span class="rounded bg-success p-2"><i class="fa fa-check" aria-hidden="true"></i>  该用户的主角色在游戏中也是{{user.profile.pcharacter.corp}}的成员</span>
+				{% elif not is_same_corp %}
+				<span class="rounded bg-danger p-2"><i class="fa fa-exclamation" aria-hidden="true"></i>  该用户的主角色在游戏中不是{{user.profile.pcharacter.corp}}的成员</span>
+				{% else %}
+				<span class="rounded bg-secondary p-2">ESI错误，请稍后再试</span>
+				{% endif %}
+			</div>
+		</td>
+		
+		<td>
+		<div class="col-sm-12" style="margin-top:5%">
+			<a href="{% url 'verification-accept' v_userlist.pk %}" class="btn btn-success">同意</a>
+			<a href="{% url 'verification-reject' v_userlist.pk %}" class="btn btn-danger">拒绝</a>
+		</div>
+		</td>
+    </tr>
+{% empty %}
+	<p>当前没有待处理的申请</p>
+{% endfor %}
+	</tbody>
+</table>
+
+{% endblock %}

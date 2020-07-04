@@ -1,0 +1,94 @@
+{% extends "base_generic.html" %}
+{% block content %}
+<ul class="messages">
+{% for message in messages %}
+	{% if message.tags == 'success' %}
+    <div class="alert alert-success alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>成功</strong> {{message}}
+	</div>
+	{% elif message.tags == 'error' %}
+    <div class="alert alert-danger alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>错误</strong> {{message}}
+	</div>
+	{% else %}
+	<div class="alert alert-warning alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>其他</strong> {{message}}
+	</div>
+	{% endif %}
+{% endfor %}
+</ul>
+{% load static %}
+
+<div>
+	<h1>
+		<img src="{% static 'img/WindowIcons/biography.png' %}" alt="" width="64" height="64">
+		绑定角色管理
+	</h1>
+</div>
+
+<div id="usernameform" style="display:none;"> 
+	<form id="updateusername" action="{% url 'changeusername' %}" class="input-group" method="POST">
+		{% csrf_token %}
+		<input type="text" id="usernameinput" value="{% if user.profile.nickname != None %}{{user.profile.nickname}}{% else %}{{user.get_username}}{% endif %}" name="nickname" maxlength="12" class="form-control" style="max-width:20em;"/>
+		<div class="input-group-append">
+			<button id="submitedit" class="btn btn-success" type="submit"><i class="fa fa-check" aria-hidden="true"></i></button>
+			<button id="canceledit" class="btn btn-danger" type="button"><i class="fa fa-times" aria-hidden="true"></i></button>
+		</div>
+	</form>
+		
+</div>
+
+<div id="usernamelabel" style="display:block;">
+<label>用户：{% if user.profile.nickname != None %} {{user.profile.nickname}}（{{user.get_username}}） {% else %} {{user.get_username}} {% endif %}</label>
+	<button id="editusername" class="btn btn-info" type="button"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+</div>
+
+<script>
+
+$("#editusername").click(function(){
+	$("#usernamelabel").css("display","none");
+	$("#usernameform").css("display","block");
+});
+
+$("#canceledit").click(function(){
+	$("#usernamelabel").css("display","block");
+	$("#usernameform").css("display","none");
+});
+
+</script>
+
+<p>主角色：{{user.profile.pcharacter}} 
+{% if user.profile.pcharacter == None %}
+{% if evecharacter_list.count != 0 %}
+<a href="{% url 'profile' %}" class="btn btn-primary btn-sm" role="button">指定主角色</a></p>
+{% endif %}
+{% endif %}
+<p>已绑定角色数量：{{evecharacter_list.count}}/6</p>
+{% if evecharacter_list %}
+<ol>
+	{% for ca in evecharacter_list %}
+		<li class="pt-1">
+			<img class="rounded" src="https://image.evepc.163.com/Character/{{ca.ingame_id}}_128.jpg" alt="" width="64" height="64">
+			{% if ca.name == user.profile.pcharacter.name %}
+			<i class="fa fa-star" aria-hidden="true"></i>
+			{% endif %}
+			{{ca.name}} 
+			<span>{{ca.corp}}</span>
+			{% if ca.name != user.profile.pcharacter.name %}		
+			<a href="{% url 'character_delete' ca.pk %}" class="btn btn-danger btn-sm" role="button"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
+			{% endif %}
+		</li>
+	{% endfor %}
+		{% if evecharacter_list.count < 6 %}
+		<li class="pt-1"><a href="{% url 'character_create' %}" class="btn btn-primary btn-sm" role="button"><i class="fa fa-plus" aria-hidden="true"></i></a></li>
+		{% endif %}
+</ol> 
+
+{% else %}
+	<p>你还没有绑定角色</p>
+	<li><a href="{% url 'character_create' %}" class="btn btn-primary btn-sm" role="button"><i class="fa fa-plus" aria-hidden="true"></i></a></li>
+{% endif %}
+{% endblock %}

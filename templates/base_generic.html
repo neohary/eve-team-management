@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  {% block title %}<title>圈圈SDE测试</title>{% endblock %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.min.js"></script>
+  <link href="https://cdn.bootcdn.net/ajax/libs/datatables/1.10.20/css/jquery.dataTables.min.css" rel="stylesheet">
+  <script src="https://cdn.bootcdn.net/ajax/libs/datatables/1.10.20/js/jquery.dataTables.min.js"></script>
+  <link href="https://cdn.bootcdn.net/ajax/libs/datatables/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+  
+  <!-- Add additional CSS in static file -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <script src="{% static 'js/numberformat.js' %}"></script>
+  <script src="{% static 'js/base.js' %}"></script>
+</head>
+
+<body class="bg-dark" style="margin:0px;">
+
+  <div class="container-fluid">
+
+    <div class="row">
+      <div class="col-sm-2 text-light" style="background-color:#343a40;border-right: 3px solid #818896;max-width:12%;">
+      {% block sidebar %}
+	  <div class="row" >
+	  <nav id="sidebar">
+		<div class="sidebar-header btn-group d-flex flex-row-reverse">
+			{% if user.is_authenticated %}
+				{% load notifications_tags %}
+				{% notifications_unread as unread_count %}
+					<a href="{% url 'notice-list' %}" class="btn btn-dark" role="button" data-toggle="tooltip" title="通知">
+						<i class="fa fa-bell" aria-hidden="true"></i>
+						{% if unread_count %}
+						<small class="badge badge-danger">{{ unread_count }}</small>
+					</a>
+						{% endif %}
+				
+			<a href="" class="btn btn-dark" role="button" data-toggle="tooltip" title="设置">
+				<i class="fa fa-cog" aria-hidden="true"></i>
+			</a>
+				
+			<a href="{% url 'logout'%}" class="btn btn-dark" role="button" data-toggle="tooltip" title="登出"> <!--登出按钮-->
+				<i class="fa fa-power-off" aria-hidden="true"></i>
+			</a>
+			{% else %}
+			<a href="{% url 'login'%}" class="btn btn-dark" role="button" data-toggle="tooltip" title="登录"> <!--登录按钮-->
+				<i class="fa fa-sign-in" aria-hidden="true"></i>
+			</a>
+			
+			<a href="{% url 'signup'%}" class="btn btn-dark" role="button" data-toggle="tooltip" title="注册"> <!--注册按钮-->
+				<i class="fa fa-user-plus" aria-hidden="true"></i>
+			</a>
+			{% endif %}
+        </div>
+		<div class="sidebar-info d-flex flex-row">
+			{% if user.is_authenticated %}
+			<div class="p-2">
+				<div class="p-1">
+					<img class="rounded-circle" src="https://image.evepc.163.com/Character/{{user.profile.pcharacter.ingame_id}}_128.jpg" alt="" width="64" height="64">
+				</div>
+				
+				<div class="p-1 d-flex flex-row">
+					<div>
+						<img class="rounded" src="https://image.evepc.163.com/Corporation/{{user.profile.pcharacter.corp.ingame_id}}_32.png" alt="">
+					</div>
+					<div>
+						<img class="rounded" src="https://image.evepc.163.com/Alliance/{{user.profile.pcharacter.corp.alliance.ingame_id}}_32.png" alt="">
+					</div>
+				</div>
+			</div>
+			<div class="p-2">
+				<div>
+					<strong>
+					{% if user.profile.nickname != None %}
+						{{user.profile.nickname}}
+					{% else %}
+						{{user.get_username}}
+					{% endif %}
+					</strong>
+					{% if user.is_superuser %}
+						<label class="badge badge-warning">神</label>
+					{% endif %}
+					{% for group in user.groups.all %}
+					{% if group.name == '军团成员' %}
+						<label class="badge badge-primary">{{ group }}</label>
+					{% elif group.name == '后勤官' %}
+						<label class="badge badge-success">{{ group }}</label>
+					{% elif group.name == '人事' %}
+						<label class="badge badge-info">{{ group }}</label>
+					{% elif group.name == 'CEO' %}
+						<label class="badge badge-danger">{{ group }}</label>
+					{% elif group.name == '统计官' %}
+						<label class="badge badge-warning">{{ group }}</label>
+					{% elif group.name == '总监' %}
+						<label class="badge badge-danger">{{ group }}</label>
+					{% else %}
+						<label class="badge badge-secondary">{{ group }}</label>
+					{% endif %}
+					{% endfor %}
+				</div>
+				<div>
+					<ul>
+						<li><span class="dot"></span> <small class="text-muted">当前在线</small></li>
+					</ul>
+				</div>
+				
+			</div>
+			{% endif %}
+		</div>
+		<ul class="list-unstyled btn-group-vertical" style="display:block;list-style-type:none;">
+			<p class="sidebar-info navbar-title text-secondary">
+				<img src="{% static 'img/WindowIcons/corporation.png' %}" alt="" width="32" height="32">
+				军团服务
+			</p>
+			{% if user.is_authenticated %}
+			{% load auth_extras %}
+				{% if user|has_group:"待验证" %}
+					<a href="{% url 'index' %}" class="btn btn-dark text-left" role="button">
+						<img src="{% static 'img/WindowIcons/browser.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
+						军团目录索引
+					</a>
+				{% endif %}
+				{% if user|has_group:"军团成员" %} 
+					<a href="{% url 'corp-detail' pk=user.profile.pcharacter.corp_id %}" class="btn btn-dark text-left navbar-btn" role="button">
+						<img src="{% static 'img/WindowIcons/corporation.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
+						军团首页
+					</a>
+					<a href="{% url 'marketgroups' %}" class="btn btn-dark text-left navbar-btn" role="button">
+						<img src="{% static 'img/WindowIcons/market.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
+						军团市场
+					</a>
+				{% endif %}
+				{% if user|has_group:"后勤官" %} 
+					<a href="{% url 'InvStorage-list' user.profile.pcharacter.corp.pk %}" class="btn btn-dark text-left" role="button">
+						<img src="{% static 'img/WindowIcons/assetscorp.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
+						库存管理
+					</a>
+					
+					<a href="{% url 'order-list-corp' %}" class="btn btn-dark text-left" role="button">
+						<img src="{% static 'img/WindowIcons/folder_cargo.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
+						查看成员订单
+						{% if corp_ongoing_orders_count > 0 %}
+						<small id="corpmemorder" class="badge badge-danger float-right">{{corp_ongoing_orders_count}}</small>
+						{% endif %}
+					</a>
+						
+						
+				{% endif %}
+				{% if user|has_group:"统计官" %} 
+					<a href="" class="btn btn-dark text-left text-muted" role="button">
+						<img src="{% static 'img/WindowIcons/warreport.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
+						战损统计
+					</a>
+				{% endif %}
+				{% if user|has_group:"人事" %} 
+					
+					<a href="{% url 'verification-list' user.profile.pcharacter.corp.pk %}" class="btn btn-dark text-left" role="button">
+						<img src="{% static 'img/WindowIcons/recruitment.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
+						新成员申请
+						{% if corp_verification_count > 0 %}
+						<small id="newmemrequest" class="badge badge-primary float-right">{{corp_verification_count}}</small>
+						{% endif %}
+					</a>
+						
+				{% endif %}
+				
+					<a href="{% url 'corp-mem-list' pk=user.profile.pcharacter.corp.id %}" class="btn btn-dark text-left" role="button">
+						<img src="{% static 'img/WindowIcons/grouplist.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
+						成员列表
+					</a>
+				
+			{% endif %}
+			
+			
+			<p class="sidebar-info navbar-title text-secondary">
+				<img src="{% static 'img/WindowIcons/cloneBay.png' %}" alt="" width="32" height="32">
+				个人服务
+			</p>
+			
+			{% if user.is_authenticated %}
+			{% if user.profile.pcharacter.corp != None %}
+			{% if user|has_group:"军团成员" %}
+            <a href="{% url 'my-cart' %}" class="btn btn-dark text-left" role="button">
+				<img src="{% static 'img/WindowIcons/cargo.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
+				购物车
+				{% if user_cart_count > 0 %}
+				<small id="cart" class="badge badge-danger float-right">{{user_cart_count}}</small>
+				{% endif %}
+			</a>
+				
+			
+			<a href="{% url 'my-orders' %}" class="btn btn-dark text-left" role="button">
+				<img src="{% static 'img/WindowIcons/contracts.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
+				我的订单
+				{% if user_ongoing_orders_count > 0 %}
+				<small id="myorders" class="badge badge-danger float-right">{{user_ongoing_orders_count}}</small>
+				{% endif %}
+			</a>
+				
+			
+			<a href="" class="btn btn-dark text-left text-muted" role="button">
+				<img src="{% static 'img/WindowIcons/killreport.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
+				战损申报
+			</a>	
+			{% endif %}
+			
+			{% endif %}
+			{% endif %}
+			<a href="{% url 'character-manage' %}" class="btn btn-dark text-left" role="button">
+				<img src="{% static 'img/WindowIcons/biography.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
+				绑定角色管理
+			</a>
+			<p class="sidebar-info navbar-title text-secondary">
+				<img src="{% static 'img/WindowIcons/UIHelper.png' %}" alt="" width="32" height="32">
+				其他服务
+			</p>
+			
+			{% if user.is_superuser %} 
+			<a href="{% url 'item_list' %}" class="btn btn-dark text-left" role="button">
+				<img src="{% static 'img/WindowIcons/Folder.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
+				invtypes
+			</a>
+			{% endif %}
+			
+        </ul>
+		<div class="sidebar-footer btn-group">
+			{% if user.is_authenticated %}
+			<a href="{% url 'logout'%}" class="btn btn-dark" role="button" data-toggle="tooltip" title="登出"> <!--登出按钮-->
+				<i class="fa fa-power-off" aria-hidden="true"></i>
+			</a>
+			{% else %}
+			<a href="{% url 'login'%}" class="btn btn-dark" role="button" data-toggle="tooltip" title="登录"> <!--登录按钮-->
+				<i class="fa fa-sign-in" aria-hidden="true"></i>
+			</a>
+			
+			<a href="{% url 'signup'%}" class="btn btn-dark" role="button" data-toggle="tooltip" title="注册"> <!--注册按钮-->
+				<i class="fa fa-user-plus" aria-hidden="true"></i>
+			</a>
+			{% endif %}
+		</div>
+	  </nav>
+	  </div>
+     {% endblock %}
+      </div>
+      <div class="col bg-dark text-light p-5" style="">
+      {% block content %}{% endblock %}
+	  
+	  {% block pagination %}
+		{% if is_paginated %}
+			<ul class="pagination">
+				{% if page_obj.has_previous %}
+				<li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+				{% else %}
+				<li class="disabled"><span>&laquo;</span></li>
+				{% endif %}
+				{% for i in page_obj.paginator.page_range %}
+					{% if page_obj.number == i %}
+					<li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+					{% else %}
+					<li><a href="?page={{ i }}">{{ i }}</a></li>
+					{% endif %}
+				{% endfor %}
+				{% if page_obj.has_next %}
+				<li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+				{% else %}
+				<li class="disabled"><span>&raquo;</span></li>
+				{% endif %}
+			</ul>
+		  {% endif %}
+	   {% endblock %} 
+      </div>
+    </div>
+
+  </div>
+  <script>
+	$('[data-toggle="tooltip"]').tooltip();
+  </script>
+  
+</body>
+</html>

@@ -1,0 +1,57 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<ul class="messages">
+{% for message in messages %}
+	{% if message.tags == 'success' %}
+    <div class="alert alert-success alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>成功</strong> {{message}}
+	</div>
+	{% elif message.tags == 'error' %}
+    <div class="alert alert-danger alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>错误</strong> {{message}}
+	</div>
+	{% else %}
+	<div class="alert alert-warning alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>其他</strong> {{message}}
+	</div>
+	{% endif %}
+{% endfor %}
+</ul>
+
+{% load static %}
+
+<div>
+	<h1>
+		<img src="{% static 'img/WindowIcons/medical.png' %}" alt="" width="64" height="64">
+		绑定角色
+	</h1>
+</div>
+
+<div class="row" style="padding-top:15vh;">
+<div class="col"></div>
+<div class="col border rounded border-secondary p-5">
+<h3>绑定角色到 {% if user.profile.nickname != None %} {{user.profile.nickname}}（{{user.get_username}}） {% else %} {{user.get_username}} {% endif %}</h3>
+<span>如果提交以后没有反应，那么可能是你的角色已经被其他人绑定了，如果是这样请联系管理员。</span>
+<form action="" method="post">
+	{{form.non_field_errors}}
+    {% csrf_token %}
+	<div>
+	{% for field in form %}
+		<input type="text" name="name" placeholder="{{ field.help_text }}" class="form-control" aria-label="Recipient's username" aria-describedby="basic-addon2" maxlength="20" required="" id="id_name">
+	{% endfor %}
+    <div class="pt-5">
+		<button class="btn btn-outline-success" type="submit" style="width:100%;">绑定</button>
+		<a href="{% url 'character-manage' %}" class="btn btn-outline-primary" role="button" style="width:100%;margin-top:5px;">返回</a>
+	</div>
+	</div>
+    
+</form>
+</div>
+<div class="col"></div>
+
+</div>
+{% endblock %}

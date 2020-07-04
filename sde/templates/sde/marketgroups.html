@@ -1,0 +1,140 @@
+{% extends "base_generic.html" %}
+{% block content %}
+{% load static %}
+<div class="row">
+	<div class="col">
+		<h1><img src="{% static 'img/WindowIcons/market.png' %}" alt="" width="64" height="64"></img>军团市场</h1>
+	</div>
+
+	<div class="col" style="text-align:right;">
+		<ul>
+			<li>库存数据：{{user.profile.pcharacter.corp}}</li>
+			<li>价格来源：EVE国服市场中心</li>
+		</ul>
+	</div>
+</div>
+	<div class="d-flex p-1">
+		<div class="row">
+			{% load mptt_tags %}
+			{% load market_icon %}
+			<div class="col">
+			
+			<div class="input-group">
+				<input id="user-input" class="form-control" aria-label="Recipient's username" aria-describedby="basic-addon2" placeholder="物品名称">
+				<div class="input-group-append">
+					<button id="search" class="btn btn-info btn-sm" type="button">搜索</button>
+				</div>
+			</div>
+			
+			<nav id="mktUL sidebar" class="list-unstyled btn-group-vertical itemlist" style="display:block;list-style-type:none;">
+			{% recursetree marketgroups %}
+				<li>
+				{% if node.is_leaf_node %}
+					<li><span class="invtypes_list">
+							<a href="{{ node.get_absolute_url }}" class="btn btn-dark mkt-nav-btn" role="button">
+								<img src="{% static 'img' %}{{node.iconid|market_icon}}" width="18" height="18" style="margin-right:10px;">{{ node.nameid }}</img>
+							</a></span></li>
+				{% else %}
+					<li><span class="mktcaret btn btn-dark mkt-nav-btn" role="button">
+					<img src="{% static 'img' %}{{node.iconid|market_icon}}" width="18" height="18" style="margin-right:10px;">{{ node.nameid }}</img></span>
+						<ul class="nested">
+							<li>{{ children }}</li>
+						</ul>
+					</li>
+			{% endif %}
+				</li>
+			{% endrecursetree %}
+			</nav>
+			
+			</div>
+		</div>
+		<div class="col border border-right-0 border-left-0 border-secondary" >
+			<div id="loadingDiv">
+				<div class="d-flex justify-content-center">
+				<div class="spinner-border" role="status"></div>
+				</div>
+				<p class="text-center">圈圈祈祷中……</p>
+			</div>
+			<div id="invtypes_list" class="itemlist ">
+				{% include 'sde/invtypes_list.html' %}
+			</div>
+		</div>
+	</div>
+<script>
+var toggler = document.getElementsByClassName("mktcaret");
+var i;
+
+for (i = 0; i < toggler.length; i++) {
+  toggler[i].addEventListener("click", function() {
+    this.parentElement.querySelector(".nested").classList.toggle("active");
+    this.classList.toggle("mktcaret-down");
+  });
+}
+</script>
+
+<script>
+	var isloading = false;
+	$(function() {
+		$('.invtypes_list>a').click(function(){
+			var href = $(this).attr('href');
+			//console.log(href);
+			isloading = true;
+			$.get(href,function(data){
+				invtypes_div.fadeTo('slow',0).promise().then(() => {
+					$('#invtypes_list').html(data);
+					invtypes_div.fadeTo('slow',1)
+				})
+			});
+			isloading = false;
+			return false;
+		});
+	});
+</script>
+<script>
+	const user_input = $("#user-input")
+	const search_icon = $('#search-icon')
+	const invtypes_div = $('#invtypes_list')
+	const endpoint = '/sde/marketgroup/'
+	const delay_by_in_ms = 700
+	let scheduled_function = false
+	let ajax_call = function (endpoint,request_parameters) {
+		isloading = true;
+		$.getJSON(endpoint,request_parameters)
+			.done(response => {
+				invtypes_div.fadeTo('slow',0).promise().then(() => {
+					invtypes_div.html(response['html_from_view'])
+					invtypes_div.fadeTo('slow',1)
+					search_icon.removeClass('blink')
+					isloading = false;
+				})
+			})
+	}
+	$("#search").click(function(){
+		const request_parameters = {
+			q: $("#user-input").val()
+		}
+		search_icon.addClass('blink')
+		if(scheduled_function) {
+			clearTimeout(scheduled_function)
+		}
+		scheduled_function = setTimeout(ajax_call,delay_by_in_ms,endpoint,request_parameters)
+	});
+	$("#user-input").keypress(function(e){
+		if(e.which == 13){
+			$("#search").click();
+		}
+	});
+</script>
+<script>
+	var $loading = $('#loadingDiv').hide();
+	$(document)
+		.ajaxStart(function(){
+			if(isloading){
+				$loading.show();
+			}
+		})
+		.ajaxStop(function(){
+			$loading.hide();
+		});
+</script>
+{% endblock %}

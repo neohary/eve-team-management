@@ -1,0 +1,7 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% for i in invtypes_list %}
+	<li>&lt;url=showinfo:{{i.typeid}}&gt;{{i.typename}}&lt;/url&gt;<p>【{{i.description}}】</p></li>
+{% endfor %}
+{% endblock %}
