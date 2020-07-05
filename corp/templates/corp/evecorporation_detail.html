@@ -133,7 +133,7 @@
 		</div>
 		
 		<div class="card-body">
-			<span>{{blog.body}}</span>
+			<span>{{blog.body|linebreaks}}</span>
 		</div>
 		<div class="card-footer d-flex justify-content-between">
 			<div>{% if blog.poster.profile.nickname != None %} {{blog.poster.profile.nickname}}（{{blog.poster}}）{% else %} {{blog.poster}} {% endif %}</div>

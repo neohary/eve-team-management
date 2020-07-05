@@ -3,6 +3,7 @@ from .models import Order
 from corp.models import EveCorporation
 from django.contrib.auth.decorators import login_required
 import requests
+from django.db.models import Q
 
 def get_user_ongoing_orders_count(request):
     if request.user.is_authenticated:
@@ -19,7 +20,7 @@ def get_corp_ongoing_orders_count(request):
         except:
             count = 0
         else:
-            count = Order.objects.filter(corp=corp).filter(status='o').count()
+            count = Order.objects.filter(corp=corp).filter(Q(status='o') | Q(status='p')).count()
         return {'corp_ongoing_orders_count':count}
     else:
         count = 0

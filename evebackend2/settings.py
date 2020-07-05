@@ -20,10 +20,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ')0102w0wc2!gnbq(z&+2!equ*rbmm%+!_u1!gv7$#!@x-l9+%n'
+#SECRET_KEY = ')0102w0wc2!gnbq(z&+2!equ*rbmm%+!_u1!gv7$#!@x-l9+%n'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY',')0102w0wc2!gnbq(z&+2!equ*rbmm%+!_u1!gv7$#!@x-l9+%n')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+#DEBUG = True
+DEBUG = bool(os.environ.get('DJANGO_DEBUG',True))
 
 ALLOWED_HOSTS = ['*']
 
@@ -37,18 +39,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-	'mptt',
+    'mptt',
     'sde.apps.SdeConfig',
     'corp.apps.CorpConfig',
     'cart.apps.CartConfig',
-	'order.apps.OrderConfig',
-	'core.apps.CoreConfig',
-	'notifications',
+    'order.apps.OrderConfig',
+    'core.apps.CoreConfig',
+    'notifications',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-	'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -71,10 +73,18 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-				'cart.context_processors.get_user_cart_count',
-				'corp.context_processors.get_corp_verification_count',
-				'order.context_processors.get_user_ongoing_orders_count',
-				'order.context_processors.get_corp_ongoing_orders_count',
+                'cart.context_processors.get_user_cart_count',
+                'corp.context_processors.get_corp_verification_count',
+                'order.context_processors.get_user_ongoing_orders_count',
+                'order.context_processors.get_corp_ongoing_orders_count',
+                'core.context_processors.get_sitetitle',
+                'core.context_processors.get_subTitle',
+				'core.context_processors.get_headInfo',
+                'core.context_processors.get_footInfo',
+                'core.context_processors.get_version',
+                'core.context_processors.is_inviteRegOnly',
+                'core.context_processors.is_underMaintaining',
+                
             ],
         },
     },
@@ -139,14 +149,3 @@ STATICFILES_DIRS = [
 ]
 
 LOGIN_REDIRECT_URL = '/'
-# Heroku: Update database configuration from $DATABASE_URL.
-import dj_database_url
-db_from_env = dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(db_from_env)
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.0/howto/static-files/
-
-# Simplified static file serving.
-# https://warehouse.python.org/project/whitenoise/
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

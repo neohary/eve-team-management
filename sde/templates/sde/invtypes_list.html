@@ -5,12 +5,12 @@
 			{% for invtype,price,stock in data %}
 					<div class="p-2 border border-top-0 border-left-0 border-right-0 border-secondary text-light">
 						<h4><img src="https://image.evepc.163.com/Type/{{invtype.typeid}}_64.png" alt="" width="64" height="64"> {{ invtype.typename }}</h4>
-						<span>{{ invtype.description }}</span>
+						<span>{{ invtype.description|linebreaks }}</span>
 						<p class="pt-2">估价：<label id="p{{invtype.typeid}}" class="font-weight-bold" style="font-size: large;"></label></p>
 						<p>库存：{{stock}}</p>
 						<form id="buy{{invtype.typeid}}" class="d-flex" method="POST">
 							{% csrf_token %}
-							<input type="number" id="quantity{{invtype.typeid}}" class="form-control" value="1" style="width: 80px" min="1" max="10000000" />
+							<input type="number" id="quantity{{invtype.typeid}}" class="form-control" value="1" style="width: 100px" min="1" max="999999999" />
 							<input type="submit" value="添加到购物车" class="btn btn-danger" style="margin-left:10px;" role="button"/>
 						</form>
 						<div class="pt-2">

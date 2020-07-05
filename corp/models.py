@@ -17,7 +17,7 @@ class EveAlliance(models.Model):
 class EveCorporation(models.Model):
     name = models.CharField(max_length=20,help_text="输入军团名称",unique=True)
     codename = models.CharField(max_length=20,help_text="军团代号",unique=True)
-    alliance = models.ForeignKey('EveAlliance',on_delete=models.SET_NULL,null=True)
+    alliance = models.ForeignKey('EveAlliance',on_delete=models.SET_NULL,null=True,blank=True)
     ceo = models.OneToOneField("EveCharacter",blank=True,null=True,on_delete=models.SET_NULL)
     ingame_id = models.IntegerField(default=1,blank=False,null=False)
     dftdiscount = models.IntegerField(default=100,blank=False,null=False)
@@ -67,6 +67,7 @@ class Profile(models.Model):
     pcharacter = models.OneToOneField("EveCharacter",blank=True,null=True,on_delete=models.SET_NULL)
     nickname = models.CharField(max_length=12,unique=True,blank=True,null=True)
     dkp = models.IntegerField(default=0)
+    donate = models.IntegerField(default=0)
     
     class Meta:
         permissions = (("user_can_set_pcharacter","用户设定主角色的权限"),)

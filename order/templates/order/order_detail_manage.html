@@ -92,9 +92,9 @@ var discount = 100;
 			</form>
 				
 			</div>
-				
+				{% load humanize %}
 			<div id="iqlabel{{item.uid}}" style="display:block">
-				<label>{{item.quantity}}</label> <button id="edit" type="button" class="btn btn-outline-warning"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+				<label>{{item.quantity|intcomma}}</label> <button id="edit" type="button" class="btn btn-outline-warning"><i class="fa fa-pencil" aria-hidden="true"></i></button>
 			</div>
 		</td> <!-- 数量 end -->
 		

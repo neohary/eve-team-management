@@ -50,7 +50,8 @@ var totalprice = 0;
 			<td><input value="{{cart.id}}" type="checkbox" id="cart{{cart.id}}" name="cart"></td>
 			<td><img src="https://image.evepc.163.com/Type/{{cart.item.typeid}}_64.png" alt="" width="32" height="32" style="margin-right:10px;">{{cart.item.typename}}</td>
 			<td id="p{{ cart.item.typeid }}"></td>
-			<td>{{cart.quantity}}</td>
+			{% load humanize %}
+			<td>{{cart.quantity|intcomma}}</td>
 			<td id="tp{{ cart.item.typeid }}"></td>
 			<td><a href="{% url 'delete-cart' cart.id %}" class="btn btn-danger" role="button"><i class="fa fa-trash" aria-hidden="true"></i></a></td>
 		</tr>

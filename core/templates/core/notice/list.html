@@ -1,14 +1,36 @@
 {% extends "base_generic.html" %}
 {% block content %}
-<h1>通知</h1>
+{% load static %}
+<h1>
+	<img src="{% static 'img/WindowIcons/other.png' %}" alt="" width="64" height="64">
+	通知
+</h1>
 {% if notices %}
 <a href="{% url 'notice-update' %}" class="btn btn-warning" role="button">全部标为已读</a>
 {% else %}
 <span>目前没有未读通知</span>
 {% endif %}
 
+<div class="col pt-3">
+<table class="table table-dark table-striped">
 {% for notice in notices %}
-<li>{{notice.verb}} {{ notice.timestamp|timesince }} 之前</li>
+{% if forloop.first %}
+	<thead>
+		<tr>
+			<th class="p-3">内容</th>
+			<th>时间</th>
+		</tr>
+	</thead>
+	<tbody>
+{% endif %}
+	<tr>
+		<td class="p-3">{{notice.verb}}</td>
+		<td>{{ notice.timestamp|timesince }} 之前</td>
+	</tr>
+{% if forloop.last %}
+	</tbody>
+{% endif %}
 {% endfor %}
-
+</table>
+</div>
 {% endblock %}

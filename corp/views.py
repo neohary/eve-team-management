@@ -473,7 +473,10 @@ def corpMiniBlog_post(request,pk):
                 post.corp = corp
                 post.poster = request.user
                 corpPostList = corpMiniBlog.objects.filter(corp=corp).order_by('-posted')
-                if corpPostList.count() > 3:
+                if corpMiniBlog.objects.filter(title=post.title).filter(body=post.body).exists():
+                    messages.error(request,"完全相同的公告已存在，请勿重复提交。")
+                    return redirect('corp-detail',pk=request.user.profile.pcharacter.corp_id)
+                if corpPostList.count() > 10:
                     oldpost = corpPostList.reverse()[0]
                     oldpost.delete()
                 post.save()
@@ -484,18 +487,23 @@ def corpMiniBlog_post(request,pk):
             return render(request, 'corp/miniblog_post.html', {'form': form})
     else:
         raise PermissionDenied
-        
+
 @login_required 
 @permission_required('corp.corp_blogger')
 @transaction.atomic
 def corpMiniBlog_delete(request,cpk,pk):
-    post = corpMiniBlog.objects.get(pk=pk)
-    if request.user.profile.pcharacter.corp == post.corp:
-        post.delete()
-        messages.success(request,"公告已删除")
+    try:
+        post = corpMiniBlog.objects.get(pk=pk)
+    except corpMiniBlog.DoesNotExist:
+        messages.error(request,"公告已删除或不存在")
         return redirect('corp-detail',pk=request.user.profile.pcharacter.corp_id)
     else:
-        raise PermissionDenied
+        if request.user.profile.pcharacter.corp == post.corp:
+            post.delete()
+            messages.success(request,"公告已删除")
+            return redirect('corp-detail',pk=request.user.profile.pcharacter.corp_id)
+        else:
+            raise PermissionDenied
         
 @login_required
 @permission_required('corp.corp_info_edit')
@@ -536,7 +544,10 @@ class corpMemberListView(LoginRequiredMixin,generic.ListView):
         
         return context
             
-        
+class EveCorporationCreateView(LoginRequiredMixin,CreateView):
+    model = EveCorporation
+    fields = ('name','codename','alliance','dftdiscount')
+    success_url = reverse_lazy('index')
         
         
         

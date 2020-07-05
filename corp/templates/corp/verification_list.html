@@ -44,7 +44,7 @@
 	{% endif %}
 	<tr>
         <td>
-		<div style="margin-top:5%">
+		<div {% if user.profile.donate > 0 %}class="rainbow-text"{% endif %} style="margin-top:5%">
 			{{v_userlist.get_username}}{% if v_userlist.profile.nickname %}({{v_userlist.profile.nickname}}) {% endif %}
 		</div>
 		</td>

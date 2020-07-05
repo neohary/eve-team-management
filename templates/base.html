@@ -17,8 +17,21 @@
 </head>
 
 <body class="bg-dark text-white" style="background-image:url({% static 'img/bg/3.jpg' %});">
-	<div class="container pt-3" style="min-height:100vh;">
+	{% if headInfo %}
+		<div class="row bg-warning p-3 text-center text-body">
+			<div class="col">
+				<span>{{headInfo|linebreaks}}</span>
+			</div>
+		</div>
+	  {% endif %}
+	<div class="container pt-3" style="min-height:80vh;">
       {% block content %}{% endblock %}
 	</div>
+	<div class="row text-center text-light" style="border-top:1px solid;background-color:rgba(2, 1, 2, 0.64);">
+		<div class="p-2 align-self-end">
+			<p>{{title}} {{version}}</p>
+			<span>{{footInfo|linebreaks}}</span>
+		</div>
+		</div>
 </body>
 </html>

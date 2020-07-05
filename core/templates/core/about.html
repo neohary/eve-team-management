@@ -1,0 +1,11 @@
+{% extends "base_generic.html" %}
+{% block content %}
+{% load static %}
+<h1>
+	<img src="{% static 'img/WindowIcons/info.png' %}" alt="" width="64" height="64">
+	关于
+</h1>
+
+<span>{{about|linebreaks}}</span>
+
+{% endblock %}

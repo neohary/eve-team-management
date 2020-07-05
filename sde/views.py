@@ -109,6 +109,6 @@ def delete_all_sde_data(request):
         marketgroups.delete()
         eveicons.delete()
     else:
-        raise PermissionDenied()
+        raise PermissionDenied
         
     return render(request,"sde/dropresult.html")

@@ -1,5 +1,6 @@
 {% extends "base_generic.html" %}
 {% block content %}
+{% load humanize %}
 <ul class="messages">
 {% for message in messages %}
 	{% if message.tags == 'success' %}
@@ -22,7 +23,7 @@
 </ul>
 {% load static %}
 
-<div>
+
 {% for s in storage %}
 	{% if forloop.first %}
 	<h1>
@@ -47,8 +48,8 @@
 					<img src="https://image.evepc.163.com/Type/{{s.invtype.typeid}}_64.png" alt="" width="32" height="32" style="margin-right:10px;">
 					{{s.invtype.typename}}
 				</td>
-				<td>{{s.stock}}</td>
-				<td>{{s.sell}}</td>
+				<td>{{s.stock|intcomma}}</td>
+				<td>{{s.sell|intcomma}}</td>
 				<td>{{s.updatetime}}</td>
 			</tr>
 	{% if forloop.last %}
@@ -62,12 +63,11 @@
 				</tr>
 			</tfoot>
 		</table>
-	<div>
+	</div>
 	{% endif %}
  {% empty %}
 	<h1>当前军团没有库存记录</h1>
  {% endfor %}
-</div>
 
 <script>
 	$(document).ready(function() {

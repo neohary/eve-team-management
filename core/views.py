@@ -1,7 +1,7 @@
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
 
-from core.forms import SignUpForm,newLoginForm
+from core.forms import SignUpForm,newLoginForm,donateInfoForm
 from django.contrib.auth import login, authenticate
 
 from django.views import View
@@ -11,8 +11,14 @@ from order.models import Order
 from django.db.models.signals import post_save
 from django.contrib.auth.models import User, Group
 from django.contrib import messages
+from .models import generalInfo,donateInfo
+from django.views import generic
+from django.core.exceptions import PermissionDenied
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
 # Create your views here.
 
+@transaction.atomic
 def signup(request):
     form_class = SignUpForm
     context = {}
@@ -52,7 +58,7 @@ class NoticeListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         return self.request.user.notifications.unread()
         
-        
+@transaction.atomic
 def UpdateNotice(request):
     notice_id = request.GET.get('notice_id')
     
@@ -64,5 +70,51 @@ def UpdateNotice(request):
     else:
         request.user.notifications.mark_all_as_read()
         return redirect('notice-list')
+    
+class donateInfoListView(generic.ListView):
+    model = donateInfo
+    paginate_by = 40
+    
+def about(request):
+    try:
+        about = generalInfo.objects.get(pk=1).about
+    except:
+        about = "获取信息时出现错误"
+        
+    return render(request,'core/about.html',{'about':about})
+    
+from corp.models import EveCharacter
+
+@login_required
+@transaction.atomic
+def addDonater(request):
+    if request.user.is_superuser:
+        if request.method == 'POST':
+            form = donateInfoForm(request.POST)
+            if form.is_valid():
+                obj = form.save(commit=False)
+                obj.save()
+                
+                if obj.type == 'r':
+                    if EveCharacter.objects.filter(name=obj.donater).exists():
+                        user = EveCharacter.objects.get(name=obj.donater).bounduser
+                        user.profile.donate += obj.amount
+                        user.save()
+                    
+                messages.success(request,"捐助记录添加成功")
+                return redirect('donate-list')
+            else:
+                messages.error(request,"something wrong")
+                form = donateInfoForm()
+                return render(request,'core/add_donate.html',{'form':form})
+        else:
+            form = donateInfoForm()
+            return render(request,'core/add_donate.html',{'form':form})
+    else:
+        raise PermissionDenied
+    
+    
+    
+    
     
     

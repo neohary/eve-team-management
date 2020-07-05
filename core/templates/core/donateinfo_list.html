@@ -1,0 +1,70 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<ul class="messages">
+{% for message in messages %}
+	{% if message.tags == 'success' %}
+    <div class="alert alert-success alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>成功</strong> {{message}}
+	</div>
+	{% elif message.tags == 'error' %}
+    <div class="alert alert-danger alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>错误</strong> {{message}}
+	</div>
+	{% else %}
+	<div class="alert alert-warning alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>其他</strong> {{message}}
+	</div>
+	{% endif %}
+{% endfor %}
+</ul>
+{% load static %}
+{% load humanize %}
+<div>
+	<h1>
+		<img src="{% static 'img/WindowIcons/basicServices.png' %}" alt="" width="64" height="64">
+		捐助
+		{% if user.is_superuser %}
+			<a href="{% url 'donate-add' %}" class="btn btn-primary" role="button">添加记录</a>
+		{% endif %}
+	</h1>
+	<span>{{donateplaninfo}}</span>
+</div>
+
+
+<div>
+	<table class="table table-dark table-striped ">
+	{% for info in donateinfo_list %}
+	{% if forloop.first %}
+		<thead>
+			<tr>
+				<th>捐助人</th>
+				<th>金额</th>
+				<th>留言</th>
+				<th>日期</th>
+			</tr>
+		</thead>
+		<tbody>
+	{% endif %}
+			<tr>
+				<td>{{info.donater}}</td>
+				<td>{{info.amount|intcomma}} {{info.get_type_display}}</td>
+				<td>{{info.info}}</td>
+				<td>{{info.donateDate}}</td>
+			</tr>
+	{% if forloop.last %}
+		</tbody>
+	{% endif %}
+	
+	{% empty %}
+	<p>当前没有捐助</p>
+	{% endfor %}
+	</table>
+</div>
+
+
+
+{% endblock %}

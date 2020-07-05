@@ -1,6 +1,7 @@
 {% extends "base_generic.html" %}
 {% block content %}
 {% load static %}
+{% load humanize %}
 
 <h1>
 	<img src="{% static 'img/WindowIcons/contracts.png' %}" alt="" width="64" height="64">
@@ -9,6 +10,7 @@
 </h1>
 <p>状态：<strong>{{order.get_status_display}}</strong> 提交日期：<strong>{{order.createdate}}</strong> {% if order.finishdate %} 完成日期：<strong>{{order.finishdate}}</strong> {% endif %}</p>
 <div class="container">
+
 <table class="table table-dark table-striped">
 {% for i in itemlist %}
 {% if forloop.first %}
@@ -27,7 +29,7 @@
 			<img src="https://image.evepc.163.com/Type/{{i.item.typeid}}_64.png" alt="" width="32" height="32" style="margin-right:10px;">
 			<label id="name">{{i.item.typename}}</label>
 		</td>
-		<td>{{i.quantity}}</td>
+		<td>{{i.quantity|intcomma}}</td>
 		<td id="ip{{forloop.counter}}"></td>
 		<td>{{i.get_status_display}}</td>
 		</thead>

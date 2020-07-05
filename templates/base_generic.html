@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   
-  {% block title %}<title>圈圈SDE测试</title>{% endblock %}
+  {% block title %}<title>{{title}}</title>{% endblock %}
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
@@ -26,9 +26,9 @@
   <div class="container-fluid">
 
     <div class="row">
-      <div class="col-sm-2 text-light" style="background-color:#343a40;border-right: 3px solid #818896;max-width:12%;">
+      <div class="col-sm-2 text-light" style="background-color:#343a40;border-right: 3px solid #818896;">
       {% block sidebar %}
-	  <div class="row" >
+	  <div class="row">
 	  <nav id="sidebar">
 		<div class="sidebar-header btn-group d-flex flex-row-reverse">
 			{% if user.is_authenticated %}
@@ -76,7 +76,7 @@
 			</div>
 			<div class="p-2">
 				<div>
-					<strong>
+					<strong {% if user.profile.donate > 0 %}class="rainbow-text"{% endif %}>
 					{% if user.profile.nickname != None %}
 						{{user.profile.nickname}}
 					{% else %}
@@ -113,7 +113,7 @@
 			</div>
 			{% endif %}
 		</div>
-		<ul class="list-unstyled btn-group-vertical" style="display:block;list-style-type:none;">
+		<ul class="list-unstyled btn-group-vertical" style="display:block;list-style-type:none;height:77%;position: absolute;overflow-y: scroll;">
 			<p class="sidebar-info navbar-title text-secondary">
 				<img src="{% static 'img/WindowIcons/corporation.png' %}" alt="" width="32" height="32">
 				军团服务
@@ -187,9 +187,7 @@
             <a href="{% url 'my-cart' %}" class="btn btn-dark text-left" role="button">
 				<img src="{% static 'img/WindowIcons/cargo.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
 				购物车
-				{% if user_cart_count > 0 %}
 				<small id="cart" class="badge badge-danger float-right">{{user_cart_count}}</small>
-				{% endif %}
 			</a>
 				
 			
@@ -224,8 +222,19 @@
 				<img src="{% static 'img/WindowIcons/Folder.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
 				invtypes
 			</a>
+			<a href="" class="btn btn-dark text-left" role="button">
+				<img src="{% static 'img/WindowIcons/corporationlocations.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
+				注册军团
+			</a>
 			{% endif %}
-			
+			<a href="{% url 'donate-list' %}" class="btn btn-dark text-left" role="button">
+				<img src="{% static 'img/WindowIcons/basicServices.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
+				捐助
+			</a>
+			<a href="{% url 'about' %}" class="btn btn-dark text-left" role="button">
+				<img src="{% static 'img/WindowIcons/info.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
+				关于
+			</a>
         </ul>
 		<div class="sidebar-footer btn-group">
 			{% if user.is_authenticated %}
@@ -246,7 +255,17 @@
 	  </div>
      {% endblock %}
       </div>
-      <div class="col bg-dark text-light p-5" style="">
+      <div class="col">
+	  {% if headInfo %}
+		<div class="row bg-warning p-3 text-center">
+		<img src="{% static 'img/WindowIcons/aggression.png' %}" alt="" width="64" height="64">
+			<div class="col">
+				<strong>{{headInfo|linebreaks}}</strong>
+			</div>
+		<img src="{% static 'img/WindowIcons/aggression.png' %}" alt="" width="64" height="64">
+		</div>
+	  {% endif %}
+	  <div class="col bg-dark text-light p-5">
       {% block content %}{% endblock %}
 	  
 	  {% block pagination %}
@@ -273,7 +292,14 @@
 		  {% endif %}
 	   {% endblock %} 
       </div>
-    </div>
+	  <div class="text-center text-light" style="border-top:1px solid">
+		<div class="p-2 align-self-end">
+			<p>{{title}} {{version}}</p>
+			<span>{{footInfo|linebreaks}}</span>
+		</div>
+		</div>
+	  </div>
+	</div>
 
   </div>
   <script>

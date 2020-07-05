@@ -1,0 +1,43 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<ul class="messages">
+{% for message in messages %}
+	{% if message.tags == 'success' %}
+    <div class="alert alert-success alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>成功</strong> {{message}}
+	</div>
+	{% elif message.tags == 'error' %}
+    <div class="alert alert-danger alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>错误</strong> {{message}}
+	</div>
+	{% else %}
+	<div class="alert alert-warning alert-dismissible">
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<strong>其他</strong> {{message}}
+	</div>
+	{% endif %}
+{% endfor %}
+</ul>
+{% load static %}
+<div>
+	<h1>
+		<img src="{% static 'img/WindowIcons/medical.png' %}" alt="" width="64" height="64">
+		添加捐助信息
+	</h1>
+</div>
+
+
+<div>
+	<form action="" method="post">
+		{% csrf_token %}
+		{{form.as_p}}
+		<button class="btn btn-outline-success" type="submit" style="width:100%;">添加</button>
+	</form>
+</div>
+
+
+
+{% endblock %}

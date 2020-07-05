@@ -32,7 +32,10 @@ urlpatterns += [
     path('<int:pk>/memlist',views.corpMemberListView.as_view(),name='corp-mem-list'),
 ]
 
+urlpatterns += [
+    path('create/',views.EveCorporationCreateView.as_view(),name='corp-create'),
 
+]
 
 
 

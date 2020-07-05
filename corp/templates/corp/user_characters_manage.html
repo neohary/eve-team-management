@@ -42,7 +42,7 @@
 </div>
 
 <div id="usernamelabel" style="display:block;">
-<label>用户：{% if user.profile.nickname != None %} {{user.profile.nickname}}（{{user.get_username}}） {% else %} {{user.get_username}} {% endif %}</label>
+<label>用户：<span {% if user.profile.donate > 0 %}class="rainbow-text"{% endif %}>{% if user.profile.nickname != None %} {{user.profile.nickname}}（{{user.get_username}}） {% else %} {{user.get_username}} {% endif %}</span></label>
 	<button id="editusername" class="btn btn-info" type="button"><i class="fa fa-pencil" aria-hidden="true"></i></button>
 </div>
 
