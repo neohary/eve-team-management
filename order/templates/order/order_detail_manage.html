@@ -62,16 +62,15 @@ var discount = 100;
 		
 		<td> <!-- 单价 start -->
 			<div id="ipinput{{item.uid}}" style="display:none">
-			<form>
-			</form>
-			<form id="form{{item.uid}}" action="{% url 'update-orderunit' item.uid %}" method="POST" class="input-group">
-					{% csrf_token %}
-				<input type="number" id="eip{{item.uid}}" value="{{item.price}}" name="price" style="width:140px" min="1"/>
-				<div class="input-group-append">
-					<button class="btn btn-success" type="submit"><i class="fa fa-check" aria-hidden="true"></i></button>
-					<button id="cancel" class="btn btn-danger" type="button"><i class="fa fa-times" aria-hidden="true"></i></button>
-				</div>
-			</form>
+			<form></form>
+				<form id="form{{item.uid}}" action="{% url 'update-orderunit' item.uid %}" method="POST" class="input-group">
+						{% csrf_token %}
+					<input type="number" id="eip{{item.uid}}" value="{{item.price}}" name="price" style="width:140px" min="1" max="999999999999"/>
+					<div class="input-group-append">
+						<button class="btn btn-success" type="submit"><i class="fa fa-check" aria-hidden="true"></i></button>
+						<button id="cancel" class="btn btn-danger" type="button"><i class="fa fa-times" aria-hidden="true"></i></button>
+					</div>
+				</form>
 			</div>
 			
 			<div id="iplabel{{item.uid}}" style="display:block">
@@ -84,7 +83,7 @@ var discount = 100;
 			<div id="iqinput{{item.uid}}"  style="display:none">
 			<form id="form{{item.uid}}" action="{% url 'update-orderunit' item.uid %}" method="POST" class="input-group" style="max-width:200px;">
 					{% csrf_token %}
-					<input type="number" id="eiq{{item.uid}}" value="{{item.quantity}}" name="quantity" class="form-control" min="1" />
+					<input type="number" id="eiq{{item.uid}}" value="{{item.quantity}}" name="quantity" class="form-control" min="1" max="999999999"/>
 				<div class="input-group-append">
 					<button class="btn btn-success" type="submit"><i class="fa fa-check" aria-hidden="true"></i></button>
 					<button id="cancel" class="btn btn-danger" type="button"><i class="fa fa-times" aria-hidden="true"></i></button>

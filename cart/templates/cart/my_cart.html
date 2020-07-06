@@ -29,7 +29,7 @@
 var totalprice = 0;
 </script>
 <div class="row justify-content-center pt-5">
-<form id="cart{{user}}" action="{% url 'create-order' %}" method="POST">
+<form id="cart{{user}}" onsubmit="return validateForm();" action="{% url 'create-order' %}" method="POST">
 {% csrf_token %}
 <div class="col">
 	<table class="table text-light table-responsive table-dark table-hover">
@@ -51,7 +51,36 @@ var totalprice = 0;
 			<td><img src="https://image.evepc.163.com/Type/{{cart.item.typeid}}_64.png" alt="" width="32" height="32" style="margin-right:10px;">{{cart.item.typename}}</td>
 			<td id="p{{ cart.item.typeid }}"></td>
 			{% load humanize %}
-			<td>{{cart.quantity|intcomma}}</td>
+			<td>
+				<div id="cart{{forloop.counter}}">
+					{{cart.quantity|intcomma}}
+					<button id="change{{forloop.counter}}" class="btn btn-outline-warning"><i class="fa fa-pencil" aria-hidden="true"></i></button>
+				</div>
+				<div id="update{{forloop.counter}}" style="display:none;">
+					<form>
+					</form>
+					<form id="form{{forloop.counter}}" action="{% url 'update-cart' cart.id %}" method="POST" class="input-group">
+						{% csrf_token %}
+						<input type="number" id="input{{forloop.counter}}" value="{{cart.quantity}}" name="quantity" class="form-control" min="1" max="999999999" />
+						<div class="input-group-append">	
+							<button type="submit" class="btn btn-success" name="action" value="form{{forloop.counter}}" ><i class="fa fa-check" aria-hidden="true"></i></button>
+							<button id="cancel{{forloop.counter}}" class="btn btn-danger" type="button"><i class="fa fa-times" aria-hidden="true"></i></button>
+						</div>
+					</form>
+					
+				</div>
+				<script>
+					$("#change{{forloop.counter}}").click(function(){
+						$("#cart{{forloop.counter}}").css("display","none");
+						$("#update{{forloop.counter}}").css("display","block");
+					});
+
+					$("#cancel{{forloop.counter}}").click(function(){
+						$("#cart{{forloop.counter}}").css("display","block");
+						$("#update{{forloop.counter}}").css("display","none");
+					});
+				</script>
+			</td>
 			<td id="tp{{ cart.item.typeid }}"></td>
 			<td><a href="{% url 'delete-cart' cart.id %}" class="btn btn-danger" role="button"><i class="fa fa-trash" aria-hidden="true"></i></a></td>
 		</tr>
@@ -94,7 +123,7 @@ var totalprice = 0;
 			</select>
 		</th>
 		<th id="totalprice"></th>
-		<th><input id="submit" type="submit" value="提交订单" class="btn btn-success"/></th>
+		<th><button type="submit" id="submit" class="btn btn-success" disabled>提交订单</button></th>
 	</tr>
 	<script>
 		//document.getElementById("totalprice").innerHTML=formatCurrency({{totalprice}})
@@ -142,6 +171,21 @@ var totalprice = 0;
 {% endfor %}
 </table>
 </div>
+<script>
+	var x = false;
+	function validateForm(){
+		if( x == true){
+			return true;
+		} else {
+			return false;
+		}
+		
+	};
+	
+	$("#submit").click(function(){
+		x = true;
+	});
+</script>
 </form>
 </div>
 {% endblock %}

@@ -136,9 +136,12 @@ def update_orderunit(request,pk):
     if request.POST.get('quantity'):
         ou.quantity = int(request.POST.get('quantity'))
         
-    ou.save()
-    order.totalprice += ou.price * ou.quantity
-    order.save()
+    try:
+        ou.save()
+        order.totalprice += ou.price * ou.quantity
+        order.save()
+    except OverflowError:
+        messages.error(request,"数值过大，请拆分处理")
     
     return redirect(request.META['HTTP_REFERER'])
     

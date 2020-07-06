@@ -12,6 +12,7 @@ import xmltodict
 from django.contrib.auth.decorators import permission_required
 from django.contrib import messages
 from django.db import transaction
+from django.core.exceptions import PermissionDenied
 # Create your views here.
 
 @permission_required('cart.user_can_use_cart')
@@ -46,8 +47,12 @@ def delete_cart(request,pk):
     except Cart.DoesNotExist:
         messages.error(request,"指定的记录不存在")
     else:
-        record.delete()
-    return redirect('my-cart')
+        if request.user == record.client:
+            record.delete()
+            return redirect('my-cart')
+        else:
+            raise PermissionDenied
+    
 
 @permission_required('cart.user_can_use_cart')
 @login_required
@@ -72,3 +77,27 @@ def add_cart(request,item):
             return JsonResponse({'msg':"已添加到购物车"})
     else:
         return redirect('my-cart')
+        
+def update_cart(request,pk):
+    try:
+        record = Cart.objects.get(pk=pk)
+    except Cart.DoesNotExist:
+        messages.error(request,"指定的记录不存在")
+    else:
+        if request.user == record.client:
+            if request.POST.get('quantity'):
+                record.quantity = int(request.POST.get('quantity'))
+                record.save()
+                messages.success(request,"记录更新成功")
+                return redirect('my-cart')
+        else:
+            raise PermissionDenied
+    
+    
+    
+    
+    
+    
+    
+    
+    
