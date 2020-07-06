@@ -9,8 +9,10 @@ from django.contrib.auth.decorators import permission_required,login_required
 from django.db import transaction
 from django.contrib.auth.mixins import LoginRequiredMixin,PermissionRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.views.decorators.cache import cache_page
 # Create your views here.
     
+@cache_page(60 * 900)
 @permission_required('sde.user_can_use_market')
 def show_marketgroups(request):
 
