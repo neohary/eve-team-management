@@ -561,16 +561,18 @@ class EveCorporationCreateView(LoginRequiredMixin,CreateView):
 @login_required
 @transaction.atomic       
 def cancel_verification(request):
-    if request.user.profile.pcharacter.corp != None:
+    if request.user.profile.pcharacter.corp != None and request.user.groups.filter(id=5).exists():
         characters = EveCharacter.objects.filter(bounduser=request.user)
         for character in characters:
             character.corp = None
             character.save()
+        request.user.groups.clear()
+        request.user.groups.add(5)
             
-        messages.error(request,"你撤回了申请")
+        messages.success(request,"你已成功撤回申请")
         return redirect('index')
     else:
-        messages.error(request,"你已经离开了军团")
+        messages.error(request,"你已经不在申请队列")
         return redirect('index')
         
 @login_required
@@ -620,11 +622,14 @@ def hr_kickuser(request,username):
 
 from .forms import UserGroupsForm     
 
-class UserGroupsUpdateView(UpdateView):
+class UserGroupsUpdateView(LoginRequiredMixin,PermissionRequiredMixin,UpdateView):
+    permission_required = 'corp.corp_hr'
     model = User
     template_name = 'corp/user_form.html'
     
+    @transaction.atomic
     def get_initial(self):
+        initial = super(UserGroupsUpdateView, self).get_initial()
         try:
             corp = self.object.profile.pcharacter.corp
         except:
@@ -634,16 +639,45 @@ class UserGroupsUpdateView(UpdateView):
                 raise PermissionDenied
             else:
                 initial = super(UserGroupsUpdateView,self).get_initial()
-                current_groups = self.object.groups.all()
-                print(current_groups)
-                initial['groups'] = current_groups
+                current_groups = self.object.groups.values_list('pk',flat=True)
+                current_groups = list(current_groups)
+                initial['group'] = current_groups
+                print(initial)
+        return initial
     
     def get_form_class(self):
         return UserGroupsForm
         
+    @transaction.atomic
     def form_valid(self,form):
-        self.object.groups.add(form.cleaned_data['groups'])
-        return super(UserGroupsUpdateView,self).form_valid(form)
+        if self.object.groups.filter(pk=2).exists():
+            messages.error(self.request,"你不能修改CEO的职位")
+            return redirect('corp-mem-list',pk=self.request.user.profile.pcharacter.corp_id)
+        else:
+            self.object.groups.clear()
+            grouplist = form.cleaned_data['group']
+            grouplist.append(3)
+            for group in grouplist:
+                self.object.groups.add(group)
+            
+            if self.object.profile.nickname != None:
+                sname = self.object.profile.nickname
+            else:
+                sname = self.object.get_username()
+            
+            if self.request.user.profile.nickname != None:
+                myname = self.request.user.profile.nickname
+            else:
+                myname = self.request.user.get_username()
+            
+            #return super(UserGroupsUpdateView,self).form_valid(form)
+            hr_group = User.objects.filter(profile__pcharacter__corp=self.request.user.profile.pcharacter.corp).filter(groups__id=4)
+            
+            messages.success(self.request,"已更新{}的职位".format(sname))
+            notify.send(self.request.user,recipient=hr_group,verb="{}的军团职位已由{}更新".format(sname,myname),action_object=self.request.user)
+            notify.send(self.request.user,recipient=self.object,verb="你的职位被{}更新了".format(myname),action_object=self.request.user)
+            return redirect('corp-mem-list',pk=self.request.user.profile.pcharacter.corp_id)
+        
         
 '''def hr_givejob(request,pk):
     try:
@@ -658,7 +692,8 @@ class UserGroupsUpdateView(UpdateView):
             else:
                 
             return 0'''
-    
+ 
+@login_required
 def quitcorp(request):
     try:
         corp = request.user.profile.pcharacter.corp
@@ -667,8 +702,8 @@ def quitcorp(request):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:
         if request.user.groups.filter(Q(id=2) | Q(id=4) | Q(id=1) | Q(id=8) | Q(id=7)).exists():
-            messages.error(request,"不能移除有重要职位的角色")
-            return redirect('corp-mem-list',pk=request.user.profile.pcharacter.corp_id)
+            messages.error(request,"你身兼要职 无法退出")
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
         else:
             characterlist = EveCharacter.objects.filter(bounduser=request.user)
             for character in characterlist:

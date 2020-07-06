@@ -67,6 +67,29 @@ $("#canceledit").click(function(){
 {% endif %}
 {% endif %}
 <p>已绑定角色数量：{{evecharacter_list.count}}/6</p>
+{% load auth_extras %}
+	{% if request.user.profile.pcharacter.corp != None and request.user|has_group:"军团成员" %}
+		<div class="float-right text-center">
+			<button id="quitcorp" class="btn btn-danger">退出军团</button>
+			
+			<div id="quitconfirm" class=" rounded border p-3" style="display:none;">
+				<p>你确定要退出{{request.user.profile.pcharacter.corp}}吗？</p>
+				<a id="confirm" href="{% url 'quit-corp' %}" class="btn btn-danger" role="button"><i class="fa fa-check" aria-hidden="true"></i></a>
+				<button id="cancel" class="btn btn-primary"><i class="fa fa-times" aria-hidden="true"></i></button>
+			</div>
+		</div>
+		<script>
+			$("#quitcorp").click(function(){
+				$("#quitcorp").css("display","none");
+				$("#quitconfirm").css("display","block");
+			});
+
+			$("#cancel").click(function(){
+				$("#quitcorp").css("display","block");
+				$("#quitconfirm").css("display","none");
+			});
+		</script>
+	{% endif %}
 {% if evecharacter_list %}
 <ol>
 	{% for ca in evecharacter_list %}
@@ -91,4 +114,5 @@ $("#canceledit").click(function(){
 	<p>你还没有绑定角色</p>
 	<li><a href="{% url 'character_create' %}" class="btn btn-primary btn-sm" role="button"><i class="fa fa-plus" aria-hidden="true"></i></a></li>
 {% endif %}
+
 {% endblock %}

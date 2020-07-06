@@ -30,10 +30,17 @@
 </div>
 
 <div>
-	{{user}}
-	{{user.profile.pcharacter}}
-	{{user.profile.pcharacter.corp}}
-	{{form.as_p}}
+	<img class="rounded" src="https://image.evepc.163.com/Character/{{user.profile.pcharacter.ingame_id}}_128.jpg" alt="" width="128" height="128">
+	变更<span {% if user.profile.donate > 0 %}class="rainbow-text"{% endif %}>{% if user.profile.nickname %}{{user.profile.nickname}}（{{user.get_username}}）{% else %}{{user.get_username}}{% endif %}</span>的职位
+</div>
+
+<div>
+	<form action="" method="post">
+		{% csrf_token %}
+		{{form.as_p}}
+		<input type="submit" class="btn btn-primary" value="确认更改">
+		<a href="{% url 'corp-mem-list' request.user.profile.pcharacter.corp_id %}" class="btn btn-info" role="button">返回</a>
+	</form>
 </div>
 
 

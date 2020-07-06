@@ -93,10 +93,35 @@
 			<td>{{user.date_joined}}</td>
 			
 			<td>{{user.last_login}}</td>
-			
-			<td>
-				<a href="{% url 'kick-user' user.get_username %}" class="btn btn-danger" role="button">踢出成员</a>
-				<a href="{% url 'give-job' user.pk %}" class="btn btn-primary" role="button">设置职位</a>
+			{% load auth_extras %}
+			<td class="text-center">
+				{% if request.user|has_group:"人事" %} 
+					<div id="kickorset{{forloop.counter}}">
+						<button id="kickmember{{forloop.counter}}" class="btn btn-danger">移除成员</button>
+						<a href="{% url 'give-job' user.pk %}" class="btn btn-primary" role="button">设置职位</a>
+					</div>
+					
+					<div id="kickconfirm{{forloop.counter}}" class="p-1 rounded border"style="display:none;">
+						<p>你确定要移除<span {% if user.profile.donate > 0 %}class="rainbow-text"{% endif %}>
+						{% if user.profile.nickname %}{{user.profile.nickname}}（{{user.get_username}}）{% else %}{{user.get_username}}
+						{% endif %}</span>吗？
+						</p>
+						<a href="{% url 'kick-user' user.get_username %}" class="btn btn-danger" role="button"><i class="fa fa-check" aria-hidden="true"></i></a>
+						<button id="cancel{{forloop.counter}}" class="btn btn-primary"><i class="fa fa-times" aria-hidden="true"></i></button>
+					</div>
+					
+				{% endif %}
+				<script>
+					$("#kickmember{{forloop.counter}}").click(function(){
+						$("#kickorset{{forloop.counter}}").css("display","none");
+						$("#kickconfirm{{forloop.counter}}").css("display","block");
+					});
+
+					$("#cancel{{forloop.counter}}").click(function(){
+						$("#kickorset{{forloop.counter}}").css("display","block");
+						$("#kickconfirm{{forloop.counter}}").css("display","none");
+					});
+				</script>
 			</td>
 			
 			</tr>

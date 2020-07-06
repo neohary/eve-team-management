@@ -1,6 +1,7 @@
 {% extends "base_generic.html" %}
-{% block content %}
 {% load static %}
+{% load cache %}
+{% block content %}
 <div class="row">
 	<div class="col">
 		<h1><img src="{% static 'img/WindowIcons/market.png' %}" alt="" width="64" height="64"></img>军团市场</h1>
@@ -9,7 +10,7 @@
 	<div class="col" style="text-align:right;">
 		<ul>
 			<li>库存数据：{{user.profile.pcharacter.corp}}</li>
-			<li>价格来源：EVE国服市场中心</li>
+			<li class="rounded bg-warning text-body border p-1 text-center">为了性能表现 暂时禁用了价格显示，你仍然可以在购物车结算时看到估价</li>
 		</ul>
 	</div>
 </div>
@@ -27,6 +28,7 @@
 			</div>
 			
 			<nav id="mktUL sidebar" class="list-unstyled btn-group-vertical itemlist" style="display:block;list-style-type:none;">
+			{% cache 500 marketgroups %}
 			{% recursetree marketgroups %}
 				<li>
 				{% if node.is_leaf_node %}
@@ -44,6 +46,7 @@
 			{% endif %}
 				</li>
 			{% endrecursetree %}
+			{% endcache %}
 			</nav>
 			
 			</div>

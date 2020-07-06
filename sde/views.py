@@ -12,7 +12,6 @@ from django.core.exceptions import PermissionDenied
 from django.views.decorators.cache import cache_page
 # Create your views here.
     
-@cache_page(60 * 900)
 @permission_required('sde.user_can_use_market')
 def show_marketgroups(request):
 
@@ -35,10 +34,10 @@ class itemListView(generic.ListView):
         prices = []
         stock = []
         for l in ls:
-            url = 'https://www.ceve-market.org/api/marketstat?typeid={0}&regionlimit=10000002'.format(l)
-            response = requests.get(url)
-            data = xmltodict.parse(response.content)['evec_api']['marketstat']['type']['sell']['percentile']
-            
+            #url = 'https://www.ceve-market.org/api/marketstat?typeid={0}&regionlimit=10000002'.format(l)
+            #response = requests.get(url)
+            #data = xmltodict.parse(response.content)['evec_api']['marketstat']['type']['sell']['percentile']
+            data = 0
             try:
                 prices.append(data)
             except UnboundLocalError:

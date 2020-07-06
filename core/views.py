@@ -40,6 +40,7 @@ def signup(request):
         context['signup_form'] = form
     return render(request,'signup.html',context)
     
+@transaction.atomic
 def add_user_to_base_group(sender,instance,created,**kwargs):
     try:
         if created:

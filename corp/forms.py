@@ -44,7 +44,7 @@ class UserGroupsForm(forms.ModelForm):
     
     group = forms.MultipleChoiceField(choices = groups,
                                    widget=forms.CheckboxSelectMultiple,
-                                   required=True)
+                                   required=False)
     
     class Meta:
         model = User

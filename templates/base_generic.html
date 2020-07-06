@@ -27,6 +27,8 @@
 
     <div class="row">
       <div class="col-sm-2 text-light" style="background-color:#343a40;border-right: 3px solid #818896;">
+	  {% load cache %}
+	  
       {% block sidebar %}
 	  <div class="row">
 	  <nav id="sidebar">
@@ -80,7 +82,7 @@
 					{% if request.user.profile.nickname != None %}
 						{{request.user.profile.nickname}}
 					{% else %}
-						{{request.user.get_request.username}}
+						{{request.user.get_username}}
 					{% endif %}
 					</strong>
 					{% if request.user.is_superrequest.user %}
@@ -109,7 +111,7 @@
 					<ul>
 						<li><span class="dot"></span> <small class="text-muted">当前在线</small></li>
 						{% if request.user.is_authenticated and request.user|has_group:"待验证" and request.user.profile.pcharacter.corp != None %}
-						<a href="" class="btn btn-danger mt-3" role="button">撤销申请</a>
+						<a href="{% url 'cancel-verification' %}" class="btn btn-danger mt-3" role="button">撤销申请</a>
 						{% endif %}
 					</ul>
 				</div>
@@ -190,7 +192,7 @@
             <a href="{% url 'my-cart' %}" class="btn btn-dark text-left" role="button">
 				<img src="{% static 'img/WindowIcons/cargo.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
 				购物车
-				<small id="cart" class="badge badge-danger float-right">{{request.user_cart_count}}</small>
+				<small id="cart" class="badge badge-danger float-right">{{user_cart_count}}</small>
 			</a>
 				
 			
