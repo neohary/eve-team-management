@@ -31,7 +31,7 @@
 	  <div class="row">
 	  <nav id="sidebar">
 		<div class="sidebar-header btn-group d-flex flex-row-reverse">
-			{% if user.is_authenticated %}
+			{% if request.user.is_authenticated %}
 				{% load notifications_tags %}
 				{% notifications_unread as unread_count %}
 					<a href="{% url 'notice-list' %}" class="btn btn-dark" role="button" data-toggle="tooltip" title="通知">
@@ -41,7 +41,7 @@
 					</a>
 						{% endif %}
 				
-			<a href="" class="btn btn-dark" role="button" data-toggle="tooltip" title="设置">
+			<a href="{% url 'character-manage' %}" class="btn btn-dark" role="button" data-toggle="tooltip" title="设置">
 				<i class="fa fa-cog" aria-hidden="true"></i>
 			</a>
 				
@@ -54,39 +54,39 @@
 			</a>
 			
 			<a href="{% url 'signup'%}" class="btn btn-dark" role="button" data-toggle="tooltip" title="注册"> <!--注册按钮-->
-				<i class="fa fa-user-plus" aria-hidden="true"></i>
+				<i class="fa fa-request.user-plus" aria-hidden="true"></i>
 			</a>
 			{% endif %}
         </div>
 		<div class="sidebar-info d-flex flex-row">
-			{% if user.is_authenticated %}
+			{% if request.user.is_authenticated %}
 			<div class="p-2">
 				<div class="p-1">
-					<img class="rounded-circle" src="https://image.evepc.163.com/Character/{{user.profile.pcharacter.ingame_id}}_128.jpg" alt="" width="64" height="64">
+					<img class="rounded-circle" src="https://image.evepc.163.com/Character/{{request.user.profile.pcharacter.ingame_id}}_128.jpg" alt="" width="64" height="64">
 				</div>
 				
 				<div class="p-1 d-flex flex-row">
 					<div>
-						<img class="rounded" src="https://image.evepc.163.com/Corporation/{{user.profile.pcharacter.corp.ingame_id}}_32.png" alt="">
+						<img class="rounded" src="https://image.evepc.163.com/Corporation/{{request.user.profile.pcharacter.corp.ingame_id}}_32.png" alt="">
 					</div>
 					<div>
-						<img class="rounded" src="https://image.evepc.163.com/Alliance/{{user.profile.pcharacter.corp.alliance.ingame_id}}_32.png" alt="">
+						<img class="rounded" src="https://image.evepc.163.com/Alliance/{{request.user.profile.pcharacter.corp.alliance.ingame_id}}_32.png" alt="">
 					</div>
 				</div>
 			</div>
 			<div class="p-2">
 				<div>
-					<strong {% if user.profile.donate > 0 %}class="rainbow-text"{% endif %}>
-					{% if user.profile.nickname != None %}
-						{{user.profile.nickname}}
+					<strong {% if request.user.profile.donate > 0 %}class="rainbow-text"{% endif %}>
+					{% if request.user.profile.nickname != None %}
+						{{request.user.profile.nickname}}
 					{% else %}
-						{{user.get_username}}
+						{{request.user.get_request.username}}
 					{% endif %}
 					</strong>
-					{% if user.is_superuser %}
+					{% if request.user.is_superrequest.user %}
 						<label class="badge badge-warning">神</label>
 					{% endif %}
-					{% for group in user.groups.all %}
+					{% for group in request.user.groups.all %}
 					{% if group.name == '军团成员' %}
 						<label class="badge badge-primary">{{ group }}</label>
 					{% elif group.name == '后勤官' %}
@@ -104,30 +104,33 @@
 					{% endif %}
 					{% endfor %}
 				</div>
+				{% load auth_extras %}
 				<div>
 					<ul>
 						<li><span class="dot"></span> <small class="text-muted">当前在线</small></li>
+						{% if request.user.is_authenticated and request.user|has_group:"待验证" and request.user.profile.pcharacter.corp != None %}
+						<a href="" class="btn btn-danger mt-3" role="button">撤销申请</a>
+						{% endif %}
 					</ul>
 				</div>
 				
 			</div>
 			{% endif %}
 		</div>
-		<ul class="list-unstyled btn-group-vertical" style="display:block;list-style-type:none;height:77%;position: absolute;overflow-y: scroll;">
+		<ul class="list-unstyled btn-group-vertical" style="display:block;list-style-type:none;height:77%;position: absolute;overflow-y: scroll;width:100%;">
 			<p class="sidebar-info navbar-title text-secondary">
 				<img src="{% static 'img/WindowIcons/corporation.png' %}" alt="" width="32" height="32">
 				军团服务
 			</p>
-			{% if user.is_authenticated %}
-			{% load auth_extras %}
-				{% if user|has_group:"待验证" %}
+			{% if request.user.is_authenticated %}
+				{% if request.user|has_group:"待验证" %}
 					<a href="{% url 'index' %}" class="btn btn-dark text-left" role="button">
 						<img src="{% static 'img/WindowIcons/browser.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
 						军团目录索引
 					</a>
 				{% endif %}
-				{% if user|has_group:"军团成员" %} 
-					<a href="{% url 'corp-detail' pk=user.profile.pcharacter.corp_id %}" class="btn btn-dark text-left navbar-btn" role="button">
+				{% if request.user|has_group:"军团成员" %} 
+					<a href="{% url 'corp-detail' pk=request.user.profile.pcharacter.corp_id %}" class="btn btn-dark text-left navbar-btn" role="button">
 						<img src="{% static 'img/WindowIcons/corporation.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
 						军团首页
 					</a>
@@ -135,13 +138,13 @@
 						<img src="{% static 'img/WindowIcons/market.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
 						军团市场
 					</a>
-					<a href="{% url 'corp-mem-list' pk=user.profile.pcharacter.corp.id %}" class="btn btn-dark text-left" role="button">
+					<a href="{% url 'corp-mem-list' pk=request.user.profile.pcharacter.corp.id %}" class="btn btn-dark text-left" role="button">
 						<img src="{% static 'img/WindowIcons/grouplist.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
 						成员列表
 					</a>
 				{% endif %}
-				{% if user|has_group:"后勤官" %} 
-					<a href="{% url 'InvStorage-list' user.profile.pcharacter.corp.pk %}" class="btn btn-dark text-left" role="button">
+				{% if request.user|has_group:"后勤官" %} 
+					<a href="{% url 'InvStorage-list' request.user.profile.pcharacter.corp.pk %}" class="btn btn-dark text-left" role="button">
 						<img src="{% static 'img/WindowIcons/assetscorp.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
 						库存管理
 					</a>
@@ -156,15 +159,15 @@
 						
 						
 				{% endif %}
-				{% if user|has_group:"统计官" %} 
+				{% if request.user|has_group:"统计官" %} 
 					<a href="" class="btn btn-dark text-left text-muted" role="button">
 						<img src="{% static 'img/WindowIcons/warreport.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
 						战损统计
 					</a>
 				{% endif %}
-				{% if user|has_group:"人事" %} 
+				{% if request.user|has_group:"人事" %} 
 					
-					<a href="{% url 'verification-list' user.profile.pcharacter.corp.pk %}" class="btn btn-dark text-left" role="button">
+					<a href="{% url 'verification-list' request.user.profile.pcharacter.corp.pk %}" class="btn btn-dark text-left" role="button">
 						<img src="{% static 'img/WindowIcons/recruitment.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
 						新成员申请
 						{% if corp_verification_count > 0 %}
@@ -181,21 +184,21 @@
 				个人服务
 			</p>
 			
-			{% if user.is_authenticated %}
-			{% if user.profile.pcharacter.corp != None %}
-			{% if user|has_group:"军团成员" %}
+			{% if request.user.is_authenticated %}
+			{% if request.user.profile.pcharacter.corp != None %}
+			{% if request.user|has_group:"军团成员" %}
             <a href="{% url 'my-cart' %}" class="btn btn-dark text-left" role="button">
 				<img src="{% static 'img/WindowIcons/cargo.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
 				购物车
-				<small id="cart" class="badge badge-danger float-right">{{user_cart_count}}</small>
+				<small id="cart" class="badge badge-danger float-right">{{request.user_cart_count}}</small>
 			</a>
 				
 			
 			<a href="{% url 'my-orders' %}" class="btn btn-dark text-left" role="button">
 				<img src="{% static 'img/WindowIcons/contracts.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
 				我的订单
-				{% if user_ongoing_orders_count > 0 %}
-				<small id="myorders" class="badge badge-danger float-right">{{user_ongoing_orders_count}}</small>
+				{% if request.user_ongoing_orders_count > 0 %}
+				<small id="myorders" class="badge badge-danger float-right">{{request.user_ongoing_orders_count}}</small>
 				{% endif %}
 			</a>
 				
@@ -217,7 +220,7 @@
 				其他服务
 			</p>
 			
-			{% if user.is_superuser %} 
+			{% if request.user.is_superrequest.user %} 
 			<a href="{% url 'item_list' %}" class="btn btn-dark text-left" role="button">
 				<img src="{% static 'img/WindowIcons/Folder.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
 				invtypes
@@ -237,7 +240,7 @@
 			</a>
         </ul>
 		<div class="sidebar-footer btn-group">
-			{% if user.is_authenticated %}
+			{% if request.user.is_authenticated %}
 			<a href="{% url 'logout'%}" class="btn btn-dark" role="button" data-toggle="tooltip" title="登出"> <!--登出按钮-->
 				<i class="fa fa-power-off" aria-hidden="true"></i>
 			</a>
@@ -247,7 +250,7 @@
 			</a>
 			
 			<a href="{% url 'signup'%}" class="btn btn-dark" role="button" data-toggle="tooltip" title="注册"> <!--注册按钮-->
-				<i class="fa fa-user-plus" aria-hidden="true"></i>
+				<i class="fa fa-request.user-plus" aria-hidden="true"></i>
 			</a>
 			{% endif %}
 		</div>
@@ -295,7 +298,7 @@
 	  <div class="text-center text-light" style="border-top:1px solid">
 		<div class="p-2 align-self-end">
 			<p>{{title}} {{version}}</p>
-			<span>{{footInfo|linebreaks}}</span>
+			<div>{{footInfo|linebreaks}}</div>
 		</div>
 		</div>
 	  </div>

@@ -12,16 +12,18 @@ from django.core.exceptions import PermissionDenied
 from notifications.signals import notify
 from django.utils import timezone
 from django.db import transaction
-from django.db.models import Sum
+from django.db.models import Sum,Q
 # Create your views here.
 
 @login_required
 def index(request): #军团首页视图
     if request.user.groups.filter(pk=5).exists():
-        corps = EveCorporation.objects.all()
+        corpcount = EveCorporation.objects.all().count()
+        corps = EveCorporation.objects.filter(refuseVerification=False)
         character = EveCharacter.objects.count()
         context = {
             'corps':corps,
+            'corpcount':corpcount,
             'character':character,
         }
         return render(request,'corp_index.html',context=context)
@@ -43,7 +45,7 @@ class corpInfView(LoginRequiredMixin,generic.DetailView): #军团详情
         else:
             context['users'] = User.objects.filter(profile__pcharacter__corp_id=pk).count()
             context['members'] = EveCharacter.objects.filter(corp_id=pk).count()
-            context['completedorders'] = Order.objects.filter(corp_id=pk).count()
+            context['completedorders'] = Order.objects.filter(corp_id=pk).filter(status='f').count()
             nowtime = timezone.now()
             context['monthlysales'] = Order.objects.filter(corp_id=pk).filter(finishdate__month=nowtime.month).aggregate(Sum('totalprice'))
             try:
@@ -123,6 +125,9 @@ def paste_storage_update(request,pk): #库存更新表单
             for item in final_datalist:
                 try:
                     tempitem = Invtypes.objects.get(typename=item['name'])
+                except Invtypes.MultipleObjectsReturned:
+                    messages.error(request,"物品 {} 返回结果不唯一，自动忽略".format(item['name']))
+                    continue
                 except Invtypes.DoesNotExist:
                     messages.error(request,"物品 {} 不存在，自动忽略".format(item['name']))
                     continue
@@ -214,7 +219,7 @@ class CharacterCreate(PermissionRequiredMixin,LoginRequiredMixin,CreateView): #�
                 return HttpResponseRedirect(self.get_success_url())
     
     def form_invaild(self,form):
-        messages.error(self.request,"角色名重复或其他错误，如果你的角色被其他人绑定了，请联系圈圈")
+        messages.error(self.request,"角色名重复或其他错误，如果你的角色被其他人绑定了，请联系管理员")
         return redirect(self.request,'character_create')
         
 class CharacterUpdate(PermissionRequiredMixin,LoginRequiredMixin,UpdateView): #修改角色
@@ -312,21 +317,25 @@ def submit_verification(request,pk):
         if request.user.profile.pcharacter != None:
             if request.user.profile.pcharacter.corp == None:
                 corp = EveCorporation.objects.get(pk=pk)
-                characterlist = EveCharacter.objects.filter(bounduser=request.user)
-                for character in characterlist:
-                    character.corp = corp
-                    character.save()
-    
-                corp_hr = User.objects.filter(profile__pcharacter__corp_id=pk).filter(groups__id=4)
+                if corp.refuseVerification == False:
+                    characterlist = EveCharacter.objects.filter(bounduser=request.user)
+                    for character in characterlist:
+                        character.corp = corp
+                        character.save()
         
-                if request.user.profile.nickname != None:
-                    rname = request.user.profile.nickname
+                    corp_hr = User.objects.filter(profile__pcharacter__corp_id=pk).filter(groups__id=4)
+            
+                    if request.user.profile.nickname != None:
+                        rname = request.user.profile.nickname
+                    else:
+                        rname = request.user.get_username()
+                    notify.send(request.user,recipient=corp_hr,verb="{}提交了加入{}的申请".format(rname,corp),action_object=request.user)
+                    notify.send(User.objects.get(pk=1),recipient=request.user,verb="你加入{}的申请已提交，请等待管理员审批".format(corp),action_object=request.user)
+                    messages.success(request,"你加入{}的申请已提交，请等待管理员审批".format(corp))
+                    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
                 else:
-                    rname = request.user.get_username()
-                notify.send(request.user,recipient=corp_hr,verb="{}提交了加入{}的申请".format(rname,corp),action_object=request.user)
-                notify.send(User.objects.get(pk=1),recipient=request.user,verb="你加入{}的申请已提交，请等待管理员审批".format(corp),action_object=request.user)
-                messages.success(request,"你加入{}的申请已提交，请等待管理员审批".format(corp))
-                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+                    messages.error(request,"{}当前不接受申请".format(corp))
+                    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
             else:
                 messages.error(request,"你已经提交了加入{}的申请，不能再提交其他申请".format(request.user.profile.pcharacter.corp))
                 return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -548,11 +557,137 @@ class EveCorporationCreateView(LoginRequiredMixin,CreateView):
     model = EveCorporation
     fields = ('name','codename','alliance','dftdiscount')
     success_url = reverse_lazy('index')
+
+@login_required
+@transaction.atomic       
+def cancel_verification(request):
+    if request.user.profile.pcharacter.corp != None:
+        characters = EveCharacter.objects.filter(bounduser=request.user)
+        for character in characters:
+            character.corp = None
+            character.save()
+            
+        messages.error(request,"你撤回了申请")
+        return redirect('index')
+    else:
+        messages.error(request,"你已经离开了军团")
+        return redirect('index')
         
+@login_required
+@permission_required('corp.corp_hr')
+@transaction.atomic
+def hr_kickuser(request,username):
+    try:
+        user = User.objects.get(username=username)
+    except:
+        messages.error(request,"该用户不存在")
+        return redirect('corp-mem-list',pk=request.user.profile.pcharacter.corp_id)
+    else:
+        if user.profile.nickname != None:
+            uname = user.profile.nickname
+        else:
+            uname = user.get_username()
+                
+        if request.user.profile.pcharacter.corp == user.profile.pcharacter.corp:
+            if user.groups.filter(Q(id=2) | Q(id=4) | Q(id=1) | Q(id=8) | Q(id=7)).exists():
+                messages.error(request,"不能移除有重要职位的角色")
+                return redirect('corp-mem-list',pk=request.user.profile.pcharacter.corp_id)
+            else:
+                characterlist = EveCharacter.objects.filter(bounduser=user)
+                for character in characterlist:
+                    character.corp = None
+                    character.save()
+                user.profile.dkp = 0
+                user.groups.clear()
+                user.profile.save()
+                messages.success(request,"{}已被你移出军团".format(uname))
+                initgroup = Group.objects.get(id=5)
+                user.groups.add(initgroup)
+                if request.user.profile.nickname != None:
+                    rname = request.user.profile.nickname
+                else:
+                    rname = request.user.get_username()
+                
+                hr_group = User.objects.filter(profile__pcharacter__corp=request.user.profile.pcharacter.corp).filter(groups__id=4)
+                
+                notify.send(request.user,recipient=hr_group,verb="{}已被{}移出{}".format(uname,rname,request.user.profile.pcharacter.corp),action_object=request.user)
+                notify.send(request.user,recipient=user,verb="你已被{}移出{}".format(rname,request.user.profile.pcharacter.corp),action_object=request.user)
+                return redirect('corp-mem-list',pk=request.user.profile.pcharacter.corp_id)
+        else:
+            messages.error(request,"该用户不属于你的军团")
+            return redirect('corp-mem-list',pk=request.user.profile.pcharacter.corp_id)
         
-        
-        
-        
-        
+
+from .forms import UserGroupsForm     
+
+class UserGroupsUpdateView(UpdateView):
+    model = User
+    template_name = 'corp/user_form.html'
     
+    def get_initial(self):
+        try:
+            corp = self.object.profile.pcharacter.corp
+        except:
+            raise PermissionDenied
+        else:
+            if corp != self.request.user.profile.pcharacter.corp:
+                raise PermissionDenied
+            else:
+                initial = super(UserGroupsUpdateView,self).get_initial()
+                current_groups = self.object.groups.all()
+                print(current_groups)
+                initial['groups'] = current_groups
     
+    def get_form_class(self):
+        return UserGroupsForm
+        
+    def form_valid(self,form):
+        self.object.groups.add(form.cleaned_data['groups'])
+        return super(UserGroupsUpdateView,self).form_valid(form)
+        
+'''def hr_givejob(request,pk):
+    try:
+        user = User.objects.get(pk=pk)
+    except:
+        messages.error(request,"用户不存在")
+        return redirect('corp-mem-list',pk=request.user.profile.pcharacter.corp_id)
+    else:
+        if request.user.groups.filter(pk=4).exists() and request.user.profile.pcharacter.corp == user.profile.pcharacter.corp:
+            if request.method == 'POST':
+            
+            else:
+                
+            return 0'''
+    
+def quitcorp(request):
+    try:
+        corp = request.user.profile.pcharacter.corp
+    except:
+        messages.error(request,"退出军团时发生错误")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        if request.user.groups.filter(Q(id=2) | Q(id=4) | Q(id=1) | Q(id=8) | Q(id=7)).exists():
+            messages.error(request,"不能移除有重要职位的角色")
+            return redirect('corp-mem-list',pk=request.user.profile.pcharacter.corp_id)
+        else:
+            characterlist = EveCharacter.objects.filter(bounduser=request.user)
+            for character in characterlist:
+                character.corp = None
+                character.save()
+            request.user.profile.dkp = 0
+            request.user.groups.clear()
+            request.user.profile.save()
+            initgroup = Group.objects.get(id=5)
+            request.user.groups.add(initgroup)
+            
+            if request.user.profile.nickname != None:
+                rname = request.user.profile.nickname
+            else:
+                rname = request.user.get_username()
+            
+            hr_group = User.objects.filter(profile__pcharacter__corp=request.user.profile.pcharacter.corp).filter(groups__id=4)
+            
+            notify.send(request.user,recipient=hr_group,verb="{}已退出{}".format(rname,corp),action_object=request.user)
+            notify.send(request.user,recipient=request.user,verb="您已退出{}".format(corp),action_object=request.user)
+            messages.success(request,"您已退出{}".format(corp))
+    return redirect('character-manage')

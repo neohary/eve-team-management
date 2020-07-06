@@ -1,6 +1,8 @@
 from django import forms
 from .models import Profile,EveCharacter,corpMiniBlog,EveCorporation
 
+from django.contrib.auth.models import User, Group
+
 class pasteInvUpdateForm(forms.Form): #粘贴式入库表单
     raw_data = forms.CharField(widget=forms.Textarea,help_text="在游戏内选择要更新的库存，Ctrl+C，然后Ctrl+V粘贴到此处")
     
@@ -37,3 +39,15 @@ class EveCorporationForm(forms.ModelForm):
         }
             
             
+class UserGroupsForm(forms.ModelForm):
+    groups = Group.objects.values_list('id','name').exclude(pk=5).exclude(pk=6).exclude(pk=2).exclude(pk=3)
+    
+    group = forms.MultipleChoiceField(choices = groups,
+                                   widget=forms.CheckboxSelectMultiple,
+                                   required=True)
+    
+    class Meta:
+        model = User
+        fields = ['group',]
+        
+        

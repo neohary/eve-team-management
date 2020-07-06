@@ -21,6 +21,7 @@ class EveCorporation(models.Model):
     ceo = models.OneToOneField("EveCharacter",blank=True,null=True,on_delete=models.SET_NULL)
     ingame_id = models.IntegerField(default=1,blank=False,null=False)
     dftdiscount = models.IntegerField(default=100,blank=False,null=False)
+    refuseVerification = models.BooleanField(default=False,null=False,blank=False)
     
     class Meta:
         permissions = (("corp_hr","军团人事相关的权限"),("corp_info_edit","更新军团设置的权限"))

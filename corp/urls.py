@@ -23,6 +23,7 @@ urlpatterns += [
     path('hr/verification/accept/<int:pk>',views.verification_accept,name='verification-accept'),
     path('hr/verification/reject/<int:pk>',views.verification_reject,name='verification-reject'),
     path('verification/<int:pk>/submit/',views.submit_verification,name='submit-verification'),
+    path('verification/cancel/',views.cancel_verification,name="cancel-verification"),
 ]
 
 urlpatterns += [
@@ -37,7 +38,12 @@ urlpatterns += [
 
 ]
 
-
+urlpatterns += [
+    path('hr/kickuser/<str:username>',views.hr_kickuser,name="kick-user"),
+    #path('hr/givejob/<int:pk>',views.hr_givejob,name="give-job"),
+    path('hr/givejob/<int:pk>',views.UserGroupsUpdateView.as_view(),name="give-job"),
+    path('quitcorp',views.quitcorp,name='quit-corp'),
+]
 
 
 

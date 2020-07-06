@@ -16,22 +16,20 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 
-<body class="bg-dark text-white" style="background-image:url({% static 'img/bg/3.jpg' %});">
+<body id="bg" class="bg-dark text-white" style="background-image:url({% static 'img/bg/3.jpg' %});background-size:cover">
 	{% if headInfo %}
 		<div class="row bg-warning p-3 text-center text-body">
+		<img src="{% static 'img/WindowIcons/aggression.png' %}" alt="" width="64" height="64">
 			<div class="col">
-				<span>{{headInfo|linebreaks}}</span>
+			<strong>
+				{{headInfo|linebreaks}}
+				</strong>
 			</div>
+			<img src="{% static 'img/WindowIcons/aggression.png' %}" alt="" width="64" height="64">
 		</div>
 	  {% endif %}
 	<div class="container pt-3" style="min-height:80vh;">
       {% block content %}{% endblock %}
 	</div>
-	<div class="row text-center text-light" style="border-top:1px solid;background-color:rgba(2, 1, 2, 0.64);">
-		<div class="p-2 align-self-end">
-			<p>{{title}} {{version}}</p>
-			<span>{{footInfo|linebreaks}}</span>
-		</div>
-		</div>
 </body>
 </html>

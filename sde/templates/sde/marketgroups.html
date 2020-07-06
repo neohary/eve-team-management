@@ -32,11 +32,11 @@
 				{% if node.is_leaf_node %}
 					<li><span class="invtypes_list">
 							<a href="{{ node.get_absolute_url }}" class="btn btn-dark mkt-nav-btn" role="button">
-								<img src="{% static 'img' %}{{node.iconid|market_icon}}" width="18" height="18" style="margin-right:10px;">{{ node.nameid }}</img>
+								{{ node.nameid }}<!-- {{node.iconid|market_icon}} -->
 							</a></span></li>
 				{% else %}
-					<li><span class="mktcaret btn btn-dark mkt-nav-btn" role="button">
-					<img src="{% static 'img' %}{{node.iconid|market_icon}}" width="18" height="18" style="margin-right:10px;">{{ node.nameid }}</img></span>
+					<li><span class="mktcaret caret btn btn-dark mkt-nav-btn" role="button">
+					{{ node.nameid }}</span> <!-- {{node.iconid|market_icon}} -->
 						<ul class="nested">
 							<li>{{ children }}</li>
 						</ul>

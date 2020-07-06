@@ -42,7 +42,12 @@ def create_order(request): #创建订单
                 r_cart.delete()
                 totalprice += temp.price * temp.quantity
             order.totalprice = totalprice
-            order.save()
+            try:
+                order.save()
+            except OverflowError:
+                messages.error(request,"订单数值过大，请拆分提交")
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+                
                     
             messages.success(request,"订单创建成功！")
             notify.send(User.objects.get(id=1),recipient=request.user,verb="你的订单{}已创建".format(order.uid),action_object=order)
