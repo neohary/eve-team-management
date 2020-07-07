@@ -64,7 +64,7 @@ def itemListSearchView(request):
         stock = []
         prices = []
         for l in ls:
-            url = 'https://www.ceve-market.org/api/marketstat?typeid={0}&regionlimit=10000002'.format(l)
+            url = 'https://www.ceve-market.org/api/marketstat?typeid={0}&usesystem=30000142'.format(l)
             response = requests.get(url)
             data = xmltodict.parse(response.content)['evec_api']['marketstat']['type']['sell']['percentile']
             
