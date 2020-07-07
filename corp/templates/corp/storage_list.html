@@ -67,6 +67,7 @@
 	{% endif %}
  {% empty %}
 	<h1>当前军团没有库存记录</h1>
+	<p><a href="{% url 'paste-storage-update' s.corp.pk %}" class="btn btn-primary btn-block" role="button">更新库存</a></p>
  {% endfor %}
 
 <script>

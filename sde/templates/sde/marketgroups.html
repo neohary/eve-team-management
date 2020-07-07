@@ -10,11 +10,11 @@
 	<div class="col" style="text-align:right;">
 		<ul>
 			<li>库存数据：{{user.profile.pcharacter.corp}}</li>
-			<li>价格来源：<a href="https://www.ceve-market.org/index/">EVE国服市场中心<a></li>
+			<li>价格来源：<a href="https://www.ceve-market.org/index/">EVE国服市场中心</a></li>
 		</ul>
 	</div>
 </div>
-	<div class="d-flex p-1">
+	<div class="d-flex flex-wrap p-1">
 		<div class="row">
 			{% load mptt_tags %}
 			{% load market_icon %}
@@ -53,14 +53,14 @@
 			
 			</div>
 		</div>
-		<div class="col border border-right-0 border-left-0 border-secondary" >
+		<div class="col border border-secondary" >
 			<div id="loadingDiv">
 				<div class="d-flex justify-content-center">
 				<div class="spinner-border" role="status"></div>
 				</div>
 				<p class="text-center">圈圈祈祷中……</p>
 			</div>
-			<div id="invtypes_list" class="itemlist ">
+			<div id="invtypes_list" class="itemlist">
 				{% include 'sde/invtypes_list.html' %}
 			</div>
 		</div>

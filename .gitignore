@@ -139,3 +139,4 @@ test.py
 uwsgi_params
 uwsgi.ini
 *.sock
+**/migrations/*
