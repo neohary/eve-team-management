@@ -55,7 +55,7 @@
 		<tbody>
 	{% endif %}
 		<tr>
-			<td {% if user.profile.donate > 0 %}class="rainbow-text"{% endif %}>{% if user.profile.nickname %}{{user.profile.nickname}}（<label id="username{{forloop.counter}}"></label>）{% else %}{{user.get_username}}{% endif %}</td>
+			<td {% if user.profile.donate > 0 %}class="rainbow-text"{% endif %}>{% if user.profile.nickname %}{{user.profile.nickname}}（<label id="username{{forloop.counter}}"></label>）{% else %}<label id="username{{forloop.counter}}"></label>{% endif %}</td>
 			
 			<td>
 			{% for char in evecharacter %}
