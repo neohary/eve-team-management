@@ -24,7 +24,7 @@ def myCartListView(request):
         characters = EveCharacter.objects.filter(bounduser=request.user)
         sumprices = []
         for cart in carts:
-            url = 'https://www.ceve-market.org/api/marketstat?typeid={0}&regionlimit=10000002'.format(cart.item.typeid)
+            url = 'https://www.ceve-market.org/api/marketstat?typeid={0}&usesystem=30000142'.format(cart.item.typeid)
             response = requests.get(url)
             data = xmltodict.parse(response.content)['evec_api']['marketstat']['type']['sell']['percentile']
             if cart.price != int(data.split('.')[0]):

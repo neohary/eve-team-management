@@ -55,7 +55,7 @@
 		<tbody>
 	{% endif %}
 		<tr>
-			<td {% if user.profile.donate > 0 %}class="rainbow-text"{% endif %}>{% if user.profile.nickname %}{{user.profile.nickname}}（{{user.get_username}}）{% else %}{{user.get_username}}{% endif %}</td>
+			<td {% if user.profile.donate > 0 %}class="rainbow-text"{% endif %}>{% if user.profile.nickname %}{{user.profile.nickname}}（<label id="username{{forloop.counter}}"></label>）{% else %}{{user.get_username}}{% endif %}</td>
 			
 			<td>
 			{% for char in evecharacter %}
@@ -121,6 +121,10 @@
 						$("#kickorset{{forloop.counter}}").css("display","block");
 						$("#kickconfirm{{forloop.counter}}").css("display","none");
 					});
+					function formatUsername(name) {
+								return name.substr(0, 3) + '****';
+						}
+						$("#username{{forloop.counter}}").text(formatUsername("{{user.get_username}}"));
 				</script>
 			</td>
 			

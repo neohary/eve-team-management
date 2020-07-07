@@ -85,7 +85,7 @@
 						{{request.user.get_username}}
 					{% endif %}
 					</strong>
-					{% if request.user.is_superrequest.user %}
+					{% if request.user.is_superuser %}
 						<label class="badge badge-warning">神</label>
 					{% endif %}
 					{% for group in request.user.groups.all %}
@@ -222,7 +222,7 @@
 				其他服务
 			</p>
 			
-			{% if request.user.is_superrequest.user %} 
+			{% if request.user.is_superuser %} 
 			<a href="{% url 'item_list' %}" class="btn btn-dark text-left" role="button">
 				<img src="{% static 'img/WindowIcons/Folder.png' %}" alt="" width="32" height="32" class="rounded bg-dark">
 				invtypes
