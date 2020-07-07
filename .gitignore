@@ -133,3 +133,9 @@ dmypy.json
 
 #Database
 *.sqlite3
+*.sql
+
+test.py
+uwsgi_params
+uwsgi.ini
+*.sock

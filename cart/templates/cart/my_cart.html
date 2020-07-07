@@ -52,7 +52,7 @@ var totalprice = 0;
 			<td id="p{{ cart.item.typeid }}"></td>
 			{% load humanize %}
 			<td>
-				<div id="cart{{forloop.counter}}">
+				<div id="cart{{forloop.counter}}" style="display:block;">
 					{{cart.quantity|intcomma}}
 					<button id="change{{forloop.counter}}" class="btn btn-outline-warning"><i class="fa fa-pencil" aria-hidden="true"></i></button>
 				</div>
