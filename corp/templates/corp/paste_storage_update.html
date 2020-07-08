@@ -10,10 +10,13 @@
 			粘贴式库存更新表单
 		</h1>
 		<p>更新到{{s.corp}}的库存</p>
+		<div class="col bg-secondary my-auto" style="height:1px;"></div>
 		
-		<div class="form-group">
-		<form id="dform" action="" method="post">
+		<div class="form-group pt-3">
+		<form id="dform" action="{% url 'paste-storage-update' s.corp.pk %}" method="post">
 			{% csrf_token %}
+			{{form.update_method.help_text}}
+			{{form.update_method}}
 			<label for="id_raw_data">将库存数据粘贴到此处</label>
 			<textarea name="raw_data" class="form-control" cols="40" rows="10" required="" id="id_raw_data"></textarea>
 			<div class="pt-3" >
@@ -59,15 +62,7 @@
 		
 		
 <script>
-$("#dform").on("submit",function(){
-	$.ajax({
-		url:"{% url 'paste-storage-update' s.corp.pk %}",
-		data:("#dform").serialize,
-		success: function(data){
-			//alert(data.message);
-		},
-	})
-});
+
 </script>
 	{% endif %}
 {% empty %}

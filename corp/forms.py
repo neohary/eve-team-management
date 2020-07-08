@@ -4,7 +4,14 @@ from .models import Profile,EveCharacter,corpMiniBlog,EveCorporation
 from django.contrib.auth.models import User, Group
 
 class pasteInvUpdateForm(forms.Form): #粘贴式入库表单
-    raw_data = forms.CharField(widget=forms.Textarea,help_text="在游戏内选择要更新的库存，Ctrl+C，然后Ctrl+V粘贴到此处")
+    raw_data = forms.CharField(widget=forms.Textarea,help_text="在游戏内选择要更新的库存，Ctrl+C，然后Ctrl+V粘贴到此处",required=True)
+    
+    UPDATE_METHOD = (
+        ('r','替换（REPLACE）'),
+        ('a','添加（ADD）'),
+    )
+    
+    update_method = forms.ChoiceField(widget=forms.RadioSelect,choices=UPDATE_METHOD,initial={'update_method':'r'},help_text="选择入库数据的更新方式：",required=True)
     
     def clean_raw_data(self):
         cleaned_raw_data = self.cleaned_data['raw_data']

@@ -59,7 +59,7 @@
         {% if od.status == 'o' or od.status == 'p' %}
         <tr>
             <td class="line-limit-length">
-                <a href="{% url 'order-manage-detail' od.uid %}" >{{od.uid}}</a>
+                <a href="{% url 'order-manage-detail' od.uid %}" >{{od}}</a>
             </td>
             <td>
                 <div>
@@ -129,7 +129,7 @@
         {% if od.status == 'f' %}
         <tr>
             <td class="line-limit-length">
-            <a href="{{od.get_absolute_url}}">{{od.uid}}</a>
+            <a href="{{od.get_absolute_url}}">{{od}}</a>
             </td>
             <td>
                 <div>

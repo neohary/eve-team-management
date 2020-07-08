@@ -156,6 +156,7 @@ def complete_order(request,pk): #完成订单
         itemuid = []
         stat = []
         totalprice = 0
+        haveno = False
     
         for n in itemcount:
             check = 'check' + str(n+1)
@@ -205,6 +206,7 @@ def complete_order(request,pk): #完成订单
                     sell.save()
             if stat == 'no':
                 ou.status = 'e'
+                haveno = True
                 ou.save()
             elif stat == 'wait':
                 ou.status = 'p'
@@ -221,11 +223,15 @@ def complete_order(request,pk): #完成订单
             rname = request.user.get_username()
         
         if order.status == 'f':
-            notify.send(request.user,recipient=lg_group,verb="订单{}已由{}完成".format(order.uid,rname),action_object=order)
-            notify.send(request.user,recipient=order.user,verb="{}完成了你的订单{}，请在游戏内查看合同".format(rname,order.uid),action_object=order)
+            notify.send(request.user,recipient=lg_group,verb="订单{}已由{}完成".format(order,rname),action_object=order)
+            if haveno:
+                notify.send(request.user,recipient=order.user,verb="{}完成了你的订单{}，订单中有物品未发放，点击查看订单详情".format(rname,order),action_object=order)
+            else:
+                notify.send(request.user,recipient=order.user,verb="{}完成了你的订单{}，请在游戏内查看合同".format(rname,order),action_object=order)
+                
         if order.status == 'p':
-            notify.send(request.user,recipient=lg_group,verb="订单{}已由{}更新".format(order.uid,rname),action_object=order)
-            notify.send(request.user,recipient=order.user,verb="{}正在处理你的订单{}，有部分物品延时发货，请在游戏内查看合同".format(rname,order.uid),action_object=order)
+            notify.send(request.user,recipient=lg_group,verb="订单{}已由{}更新".format(order,rname),action_object=order)
+            notify.send(request.user,recipient=order.user,verb="{}正在处理你的订单{}，有部分物品延时发货，请在游戏内查看合同".format(rname,order),action_object=order)
         return render(request,'order/complete_order.html')
     else:
         messages.error(request,"该订单已完成")

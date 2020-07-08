@@ -24,7 +24,7 @@
 	<tbody>
 {% endif %}
 	<tr>
-		<td class="p-3">{{notice.verb}}</td>
+		<td class="p-3"><a href="{{notice.action_object.get_absolute_url}}" style="color: white;"><div class="display-block">{{notice.verb}}</div></a></td>
 		<td>{{ notice.timestamp|timesince }} 之前</td>
 	</tr>
 {% if forloop.last %}

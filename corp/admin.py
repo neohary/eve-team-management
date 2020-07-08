@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import EveCorporation,EveCharacter,InvStorage,EveAlliance,Profile
+from .models import EveCorporation,EveCharacter,InvStorage,EveAlliance,Profile,corpMiniBlog
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from sde.models import Invtypes
@@ -38,7 +38,7 @@ class EveCorporationAdmin(admin.ModelAdmin):
 #admin.site.register(EveCharacter)
 @admin.register(EveCharacter)
 class EveCharacterAdmin(admin.ModelAdmin):
-    list_display = ('name','corp')
+    list_display = ('name','corp','bounduser','ingame_id')
 #admin.site.register(InvStorage)
 #@admin.register(InvStorage)
 #class InvStorageAdmin(admin.ModelAdmin):
@@ -51,3 +51,7 @@ class InvStorageInline(admin.TabularInline):
 class InvStorageAdmin(admin.ModelAdmin):
     list_display =  [field.name for field in InvStorage._meta.get_fields()]
     #inlines = [InvtypesInline]
+    
+@admin.register(corpMiniBlog)
+class corpMiniBlogAdmin(admin.ModelAdmin):
+    list_display =  [field.name for field in corpMiniBlog._meta.get_fields()]

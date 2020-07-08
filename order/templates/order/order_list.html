@@ -57,7 +57,7 @@
 			
 			{% if od.status == 'o' or od.status == 'p' %}
 			<tr>
-				<td class="line-limit-length"><a href="{{od.get_absolute_url}}">{{od.uid}}</a></td>
+				<td class="line-limit-length"><a href="{{od.get_absolute_url}}">{{od}}</a></td>
 				<td>
 					<div>
 					<img class="rounded-circle" src="https://image.evepc.163.com/Character/{{od.receiver.ingame_id}}_128.jpg" alt="" width="32" height="32">

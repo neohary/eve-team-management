@@ -96,6 +96,7 @@ def paste_storage_update(request,pk): #库存更新表单
     if request.method == 'POST':
         form = pasteInvUpdateForm(request.POST)
         if form.is_valid():
+            update_method = request.POST.get('update_method')
             data = form.clean_raw_data()
             data_lines = data.splitlines()
             name = []
@@ -124,7 +125,7 @@ def paste_storage_update(request,pk): #库存更新表单
             #print(final_datalist)
             for item in final_datalist:
                 try:
-                    tempitem = Invtypes.objects.get(typename=item['name'])
+                    tempitem = Invtypes.objects.filter(typename=item['name']).filter(published=1).get()
                 except Invtypes.MultipleObjectsReturned:
                     messages.error(request,"物品 {} 返回结果不唯一，自动忽略".format(item['name']))
                     continue
@@ -138,11 +139,15 @@ def paste_storage_update(request,pk): #库存更新表单
                 try:
                     record = InvStorage.objects.filter(corp_id=pk).filter(invtype=tempitem).get()
                 except InvStorage.DoesNotExist:
-                    temp = InvStorage(invtype=tempitem,corp_id=pk,stock=item['stock'])
+                    temp = InvStorage(invtype=tempitem,corp_id=pk,stock=item['stock']) #创建记录
                     temp.save()
                     count += 1
                 else:
-                    record.stock = item['stock']
+                    if update_method == 'r':
+                        record.stock = item['stock']
+                    else:
+                        record.stock += item['stock']
+                        
                     record.update = timezone.now()
                     record.save()
                     count += 1
@@ -161,7 +166,7 @@ def paste_storage_update(request,pk): #库存更新表单
         if request.user.profile.pcharacter.corp.id != pk:
             raise PermissionDenied
         else:
-            form = pasteInvUpdateForm()
+            form = pasteInvUpdateForm({'update_method':'r'})
         context = {
             'storage': stor,
             'corp': corp,

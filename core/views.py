@@ -117,5 +117,3 @@ def addDonater(request):
     
     
     
-    
-    

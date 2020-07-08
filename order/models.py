@@ -40,7 +40,7 @@ class Order(models.Model):
         return reverse('order-detail', args=[str(self.uid)])
     
     def __str__(self):
-        return '%s (%s-%s)' % (self.receiver,self.status,self.uid)
+        return '%s (%s)' % (str(self.uid)[0:5],self.receiver)
         
 class regularOrderUnit(models.Model):
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4,help_text="单元UID")
