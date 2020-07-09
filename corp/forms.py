@@ -47,7 +47,11 @@ class EveCorporationForm(forms.ModelForm):
             
             
 class UserGroupsForm(forms.ModelForm):
-    groups = Group.objects.values_list('id','name').exclude(pk=5).exclude(pk=6).exclude(pk=2).exclude(pk=3)
+    #groups = Group.objects.values_list('id','name').exclude(pk=5).exclude(pk=6).exclude(pk=2).exclude(pk=3)
+    groups = (
+        ('a','AA'),
+        ('b','BB'),
+    )
     
     group = forms.MultipleChoiceField(choices = groups,
                                    widget=forms.CheckboxSelectMultiple,

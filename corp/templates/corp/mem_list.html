@@ -63,6 +63,9 @@
 			<div class="pt-1">
 			<img class="rounded-circle" src="https://image.evepc.163.com/Character/{{char.ingame_id}}_128.jpg" alt="" width="32" height="32">
 				{{char}}
+				{% if char == user.profile.pcharacter %}
+				<i class="fa fa-star text-warning" aria-hidden="true"></i>
+			{% endif %}
 			</div>
 			{% endif %}
 			{% endfor %}
@@ -153,7 +156,9 @@
 
 <script>
 	$(document).ready(function() {
-    $('#memlist').DataTable();
+    $('#memlist').DataTable({
+		"order":[[4,'desc']]
+	});
 	} );
 </script>
 

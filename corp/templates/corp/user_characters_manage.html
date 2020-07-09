@@ -96,7 +96,7 @@ $("#canceledit").click(function(){
 		<li class="pt-1">
 			<img class="rounded" src="https://image.evepc.163.com/Character/{{ca.ingame_id}}_128.jpg" alt="" width="64" height="64">
 			{% if ca.name == user.profile.pcharacter.name %}
-			<i class="fa fa-star" aria-hidden="true"></i>
+			<i class="fa fa-star text-warning" aria-hidden="true"></i>
 			{% endif %}
 			{{ca.name}} 
 			<span>{{ca.corp}}</span>

@@ -112,7 +112,9 @@
 		</table>
 		<script>
 			$(document).ready(function() {
-				$('#table1').DataTable();
+				$('#table1').DataTable({
+					"order":[[5,'asc']]
+				});
 			} );
 		</script>
 	</div>
@@ -179,7 +181,9 @@
 		</table>
 		<script>
 			$(document).ready(function() {
-				$('#table2').DataTable();
+				$('#table2').DataTable({
+					"order":[[5,'desc']]
+				});
 			} );
 		</script>
 	</div>
