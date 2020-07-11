@@ -113,7 +113,7 @@ DATABASES = {
 		'NAME': 'evebackend2',
 		'USER': 'postgres',
 		'PASSWORD': 'FireAndSw0rd1',
-		'HOST': '',
+		'HOST': 'localhost',
 		'PORT': '5432',
 	}
 }
