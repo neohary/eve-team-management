@@ -140,3 +140,4 @@ uwsgi_params
 uwsgi.ini
 *.sock
 **/migrations/*
+uwsgi/
